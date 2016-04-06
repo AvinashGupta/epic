@@ -25,7 +25,7 @@
 # Zuguang Gu <z.gu@dkfz.de>
 #
 extract_field_from_gencode = function(file, level = "gene", primary_key = "gene_id", field = "gene_name") {
-	df = read.table(pipe(qq("perl \"@{system.file(package = 'cotools')}/perl_scripts/extract_field_from_gencode.pl\" @{file} @{level} @{primary_key} @{field}")), 
+	df = read.table(pipe(qq("perl \"@{system.file(package = 'epic')}/perl_scripts/extract_field_from_gencode.pl\" @{file} @{level} @{primary_key} @{field}")), 
 		stringsAsFactors = FALSE)
 	return(structure(df[[2]], names = df[[1]]))
 }
