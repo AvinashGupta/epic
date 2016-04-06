@@ -70,3 +70,51 @@ methylation_hooks = setGlobalOptions(
 # .obj_is_set = function() {
 # 	!is.null(methylation_hooks$obj)
 # }
+
+# == title
+# Hook functions to extract ChIP-Seq peak data
+#
+# == param
+# -... Arguments for the parameters, see "details" section
+# -RESET reset to default values
+# -READ.ONLY whether only return read-only options
+# -LOCAL switch local mode
+#
+# == details
+# This hook defines how to get sample ids for a specific marks and how to get peak regions
+# by given mark type and sample id:
+#
+# -sample_id how to extract sample ids
+# -peak how to get peak regions
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+chipseq_hooks = function(..., RESET = FALSE, READ.ONLY = NULL, LOCAL = FALSE) {}
+chipseq_hooks = setGlobalOptions(
+	sample_id = list(.value = function(mark) stop("you need to define `sample_id` hook"),
+		             .class = "function",
+		             .validate = function(f) length(as.list(f)) == 2),
+	peak = list(.value = function(mark, sid) stop("you need to define `peak` hook"),
+		        .class = "function",
+		        .validate = function(f) length(as.list(f)) == 3)
+)
+
+# == title
+# Get a list of peak regions
+#
+# == param
+# -mark mark type
+#
+# == details
+# It works after `chipseq_hooks` is set
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+get_peak_list = function(mark) {
+    sample_id = chipseq_hooks$sample_id(mark)
+    peak_list = lapply(sample_id, chipseq_hooks$peak, mark)
+    names(peak_list) = sample_id
+    peak_list
+}

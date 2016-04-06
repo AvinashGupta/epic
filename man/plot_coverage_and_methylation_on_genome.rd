@@ -23,6 +23,9 @@ plot_coverage_and_methylation_on_genome(sid, chromosome = paste0("chr", 1:22),
 The whole genome is segented by \code{nw} windows and mean methylation and mean CpG coverage
 are visualized as two tracks.
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

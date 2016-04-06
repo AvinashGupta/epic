@@ -307,6 +307,7 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 # -sample_id a vector of sample ids
 # -annotation subtype information
 # -annotation_color color for subtypes
+# -reorder_column whether reorder the samples
 # -ha additional annotation can be specified as a `ComplexHeatmap::HeatmapAnnotation` object
 # -chromosome chromosomes
 # -by_chr whether make the plot by chromosome
@@ -394,9 +395,9 @@ global_methylation_distribution = function(sample_id, annotation,
 			.mat_dist(cov_list, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = "coverage", range = c(0, log10(max_cov)), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
 			
 			if(reorder_column) {
-				od = order(factor(anno, levels = unique(anno), ordered = TRUE), sapply(meth_list, median, na.rm = TRUE))
+				od = order(factor(annotation, levels = unique(annotation), ordered = TRUE), sapply(meth_list, median, na.rm = TRUE))
 			} else {
-				od = seq_along(anno)
+				od = seq_along(annotation)
 			}
 			
 			return(od)
@@ -446,9 +447,9 @@ global_methylation_distribution = function(sample_id, annotation,
 			.mat_dist(log10(cov_mat), reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = "coverage", range = c(0, log10(max_cov)), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
 			
 			if(reorder_column) {
-				od = order(factor(anno, levels = unique(anno), ordered = TRUE), sapply(meth_mat, median, na.rm = TRUE))
+				od = order(factor(annotation, levels = unique(annotation), ordered = TRUE), sapply(meth_mat, median, na.rm = TRUE))
 			} else {
-				od = seq_along(anno)
+				od = seq_along(annotation)
 			}
 			
 			return(od)

@@ -30,8 +30,12 @@ correlated_regions(sample_id, expr, txdb, chr, extend = 50000,
   \item{col}{color for subtypes}
 
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \details{
 based on \code{\link{correlated_regions_per_gene}}
+
 }
 \examples{
 # There is no example

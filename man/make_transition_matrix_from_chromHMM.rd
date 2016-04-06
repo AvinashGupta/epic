@@ -8,7 +8,7 @@ Generate transition matrix from chromHMM results
 }
 \usage{
 make_transition_matrix_from_chromHMM(gr_list_1, gr_list_2, window = NULL,
-    min_1 = round(length(gr_list_1)/2), min_2 = round(length(gr_list_2)/3))
+    min_1 = floor(length(gr_list_1)/2), min_2 = floor(length(gr_list_2)/2))
 }
 \arguments{
 
@@ -28,4 +28,5 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 # There is no example
 NULL
+
 }

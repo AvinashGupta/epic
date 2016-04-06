@@ -12,7 +12,7 @@ correlated_regions_per_gene(site, meth, cov, expr, chr, cov_cutoff = 3, min_dp =
 }
 \arguments{
 
-  \item{site}{CpG sites}
+  \item{site}{CpG sites, a vector}
   \item{meth}{methylation matrix corresponding to \code{site}}
   \item{cov}{coverage}
   \item{expr}{expression for current gene}
@@ -24,6 +24,9 @@ correlated_regions_per_gene(site, meth, cov, expr, chr, cov_cutoff = 3, min_dp =
   \item{factor}{subtype}
   \item{max_width}{maximum width of a window}
 
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

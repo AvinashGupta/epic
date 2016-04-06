@@ -143,23 +143,17 @@ GENOMIC_FEATURE_LIST = lapply(GENOMIC_FEATURE_LIST, function(x) {
 })
 
 
-ALL_MARKS = "H3K4me3"
-get_chipseq_sample_id = function(mark) {
+MARKS = c("H3K4me3", "H3K4me1")
+
+chipseq_hook$sample_id = function(mark) {
     sample_id = dir("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/narrow_peaks", pattern = qq("E\\d+-@{mark}.narrowPeak.gz"))
     sample_id = gsub(qq("-@{mark}.narrowPeak.gz"), "", sample_id)
     intersect(sample_id, rownames(SAMPLE))
 }
 
-get_peak_list = function(mark) {
-    sample = get_chipseq_sample_id(mark)
-
-    peak_list = list()
-    for(i in seq_along(sample)) {
-        qqcat("reading sample[i], @{mark}\n")
-        df = read.table(qq("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/narrow_peaks/@{sid}-@{mark}.narrowPeak.gz"), stringsAsFactors = FALSE)
-        gr = GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]]+1, df[[3]]), density = df[[5]])
-        hm_list[[i]] = gr
-    }
-    names(hm_list) = sample
-    hm_list
+chipseq_hook$peak = function(mark, sid) {
+    message("reading peaks: @{sid}, @{mark}")
+    df = read.table(qq("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/narrow_peaks/@{sid}-@{mark}.narrowPeak.gz"), stringsAsFactors = FALSE)
+    GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]]+1, df[[3]]), density = df[[5]])
 }
+

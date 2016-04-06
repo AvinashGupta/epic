@@ -23,6 +23,9 @@ plot_multiple_samples_methylation_on_genome(sample_id, annotation,
 \details{
 The whole genome is segented by \code{nw} windows
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

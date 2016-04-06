@@ -25,6 +25,9 @@ For each sample id, it will produce five plots:
   \item histogram of methylation
   \item mean Methylation for each CpG coverage 
 }
+}
+\value{
+A list of corresponding statistics
 
 = author
 Zuguang Gu <z.gu@dkfz.de>

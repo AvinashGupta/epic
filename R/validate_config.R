@@ -1,4 +1,15 @@
- 
+
+
+# == title
+# Validate configuration file
+#
+# == param
+# -config_file path of configuration file
+# -export_env environment where to export variables
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 validate_config = function(config_file, export_env = parent.frame()) {
 	cat(
 "Configuration file should provide following variables:
@@ -13,11 +24,11 @@ COLOR: a list of color settings corresponding to annotation column in
   will be assigned. Names of other color settings should be same as
   corresponding columns in 'SAMPLE'.
 
-TXDB: a 'TxDB' object.
+TXDB (optional): a 'TxDB' object.
 
-EXPR: a matrix which contains expression values. Column names should be sample
-  id and row names should be gene ids. Note gene ids in the expression
-  matrix should be same type as genes in 'TXDB'.
+EXPR (optional): a matrix which contains expression values. Column names 
+  should be sample id and row names should be gene ids. Note gene ids in the 
+  expression matrix should be same type as genes in 'TXDB'.
 
 CHROMOSOME: a vector of chromosome names.
 
@@ -28,7 +39,10 @@ OUTPUT_DIR: path of output directory. Several sub directories will be created.
 GENOMIC_FEATURE_LIST: a list of genomic features as GRanges objects. There
   must be a element named 'cgi'.
 
+MARKS (optional): a vector of ChIP-Seq markers.
+
 methylation_hooks() must be defined.
+chipseq_hooks() is optional unless you want to do integrative analysis.
 
 ")
 	SAMPLE = NULL
@@ -39,6 +53,7 @@ methylation_hooks() must be defined.
 	GENOME = NULL
 	OUTPUT_DIR = NULL
 	GENOMIC_FEATURE_LIST = NULL
+	MARKS = NULL
 
 	sys.source(config_file, envir = environment())
 
@@ -79,28 +94,29 @@ methylation_hooks() must be defined.
 		stop("Cannot match column names in coverage data to sample ids in 'SAMPLE'.")
 	}
 
-	# test txdb and expr
-	if(length(intersect(sample_id, colnames(EXPR))) == 0) {
-		stop("Cannot match column names in 'EXPR' to sample ids in 'SAMPLE'.")
-	}
-	if(length(intersect(colnames(meth), colnames(EXPR))) == 0) {
-		stop("Cannot match column names in 'EXPR' to column names in methylation data.")
-	}
+	if(is.null(EXPR) || is.null(TXDB)) {
+		# test txdb and expr
+		if(length(intersect(sample_id, colnames(EXPR))) == 0) {
+			stop("Cannot match column names in 'EXPR' to sample ids in 'SAMPLE'.")
+		}
+		if(length(intersect(colnames(meth), colnames(EXPR))) == 0) {
+			stop("Cannot match column names in 'EXPR' to column names in methylation data.")
+		}
 
-	genes = genes(TXDB)
-	if(length(intersect(names(genes), rownames(EXPR))) == 0) {
-		stop("Cannot match genes in 'EXPR' to 'TXDB'.")
+		genes = genes(TXDB)
+		if(length(intersect(names(genes), rownames(EXPR))) == 0) {
+			stop("Cannot match genes in 'EXPR' to 'TXDB'.")
+		}
+
+		# check chromosome and species
+		if(length(intersect(CHROMOSOME, getChromInfoFromUCSC(GENOME)[, 1])) == 0) {
+			stop("Cannot match 'GENOME' to 'CHROMOSOME'.")
+		}
+
+		chr = as.vector(seqnames(genes))
+		names(chr) = names(genes)
+		EXPR = EXPR[chr[rownames(EXPR)] %in% CHROMOSOME, , drop = FALSE]
 	}
-
-	# check chromosome and species
-	if(length(intersect(CHROMOSOME, getChromInfoFromUCSC(GENOME)[, 1])) == 0) {
-		stop("Cannot match 'GENOME' to 'CHROMOSOME'.")
-	}
-
-	chr = as.vector(seqnames(genes))
-	names(chr) = names(genes)
-	EXPR = EXPR[chr[rownames(EXPR)] %in% CHROMOSOME, , drop = FALSE]
-
 
 	# initialize the folder structure
 	dir.create(OUTPUT_DIR, showWarnings = FALSE)
@@ -121,7 +137,25 @@ methylation_hooks() must be defined.
 	}
 
 	# validate chipseq data input
-	
+	for(mk in MARKS) {
+		sample_id = chipseq_hooks$sample_id(mk)
+		if(length(sample_id) == 0) {
+			stop(qq("No ChIP-Seq sample detected for mark @{mk}."))
+		}
+		if(length(intersect(rownames(SAMPLE), sample_id)) == 0) {
+			stop(qq("No ChIP-Seq sample in 'SAMPLE' for mark @{mark}."))
+		}
+
+		peak_list = get_peak_list(mk)
+		for(i in seq_along(peak_list)) {
+			if(length(setdiff(as.character(seqnames(peak_list[[i]])), CHROMOSOME))) {
+				stop(qq("peaks should only contain chromosomes in 'CHROMOSOME', mark @{mk}. Please modify the 'peak' hook."))
+			}
+			if(!"density" %in% colnames(mcols(peak_list[[i]]))) {
+				stop(qq("Signal of peaks should be in the 'density' column. Please modify the 'peak' hook."))
+			}
+		}
+	}
 
 
 	assign("SAMPLE", SAMPLE, envir = export_env)
@@ -132,4 +166,5 @@ methylation_hooks() must be defined.
 	assign("GENOME", GENOME, envir = export_env)
 	assign("OUTPUT_DIR", OUTPUT_DIR, envir = export_env)
 	assign("GENOMIC_FEATURE_LIST", GENOMIC_FEATURE_LIST, envir = export_env)
+	assign("MARKS", MARKS, envir = export_env)
 }
