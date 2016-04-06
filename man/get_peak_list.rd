@@ -7,11 +7,12 @@ Get a list of peak regions
 Get a list of peak regions
 }
 \usage{
-get_peak_list(mark)
+get_peak_list(mark, sample_id = chipseq_hooks$sample_id(mark))
 }
 \arguments{
 
   \item{mark}{mark type}
+  \item{sample_id}{a vector of sample ids}
 
 }
 \details{
@@ -23,4 +24,5 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 # There is no example
 NULL
+
 }

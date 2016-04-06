@@ -105,6 +105,7 @@ chipseq_hooks = setGlobalOptions(
 #
 # == param
 # -mark mark type
+# -sample_id a vector of sample ids
 #
 # == details
 # It works after `chipseq_hooks` is set
@@ -112,9 +113,8 @@ chipseq_hooks = setGlobalOptions(
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-get_peak_list = function(mark) {
-    sample_id = chipseq_hooks$sample_id(mark)
-    peak_list = lapply(sample_id, chipseq_hooks$peak, mark)
+get_peak_list = function(mark, sample_id = chipseq_hooks$sample_id(mark)) {
+    peak_list = lapply(sample_id, function(sid) chipseq_hooks$peak(mark, sid))
     names(peak_list) = sample_id
     peak_list
 }

@@ -10,7 +10,6 @@ export(genomic_corr_sintersect)
 export(cor_cols)
 export(correlated_regions)
 export(methylation_subtype_classfication)
-export(validate_config)
 export(chromatin_states_transition_chord_diagram)
 export(enriched_heatmap_list_on_gene)
 export(add_subtype_specificity)
@@ -44,6 +43,7 @@ export(methylation_hooks)
 export(annotate_to_gene_models)
 export(find_neighbours)
 export(subgroup_specific_genomic_regions)
+export(load_config)
 export(reduce_cr)
 export(plot_subgroup_specificity_heatmap)
 export(percentOverlaps)
@@ -55,6 +55,8 @@ export(enriched_heatmap_list_on_tss_cgi)
 export(plot_multiple_samples_methylation_on_genome)
 export(reduce_cr_gap_test)
 export(genomic_corr_nintersect)
+
+
 
 
 
@@ -84,5 +86,7 @@ useDynLib(epic)
 importFrom(Rcpp, sourceCpp)
 import(RColorBrewer)
 importFrom(grDevices, col2rgb, rgb)
+
+
 
 

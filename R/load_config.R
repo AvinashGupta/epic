@@ -1,16 +1,17 @@
 
 
 # == title
-# Validate configuration file
+# Load and validate configuration file
 #
 # == param
 # -config_file path of configuration file
 # -export_env environment where to export variables
+# -validate whether do validation
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-validate_config = function(config_file, export_env = parent.frame()) {
+load_config = function(config_file, export_env = parent.frame(), validate = TRUE) {
 	cat(
 "Configuration file should provide following variables:
 
@@ -56,6 +57,18 @@ chipseq_hooks() is optional unless you want to do integrative analysis.
 	MARKS = NULL
 
 	sys.source(config_file, envir = environment())
+
+	if(!validate) {
+		assign("SAMPLE", SAMPLE, envir = export_env)
+		assign("COLOR", COLOR, envir = export_env)
+		assign("TXDB", TXDB, envir = export_env)
+		assign("EXPR", EXPR, envir = export_env)
+		assign("CHROMOSOME", CHROMOSOME, envir = export_env)
+		assign("GENOME", GENOME, envir = export_env)
+		assign("OUTPUT_DIR", OUTPUT_DIR, envir = export_env)
+		assign("GENOMIC_FEATURE_LIST", GENOMIC_FEATURE_LIST, envir = export_env)
+		assign("MARKS", MARKS, envir = export_env)
+	}
 
 	# test SAMPLE
 	if(is.null(SAMPLE$class)) {
@@ -145,8 +158,12 @@ chipseq_hooks() is optional unless you want to do integrative analysis.
 		if(length(intersect(rownames(SAMPLE), sample_id)) == 0) {
 			stop(qq("No ChIP-Seq sample in 'SAMPLE' for mark @{mark}."))
 		}
-
-		peak_list = get_peak_list(mk)
+		if(length(setdiff(sample_id, rownames(SAMPLE)))) {
+			stop(qq("There are ChIP-Seq samples which are not in 'SAMPLE'. Please modify the 'sample_id' hook."))
+		}
+		sid = sample(sample_id, 1)
+		qqcat("random pick one sample: @{sid}\n")
+		peak_list = get_peak_list(mk, sid)
 		for(i in seq_along(peak_list)) {
 			if(length(setdiff(as.character(seqnames(peak_list[[i]])), CHROMOSOME))) {
 				stop(qq("peaks should only contain chromosomes in 'CHROMOSOME', mark @{mk}. Please modify the 'peak' hook."))
@@ -167,4 +184,6 @@ chipseq_hooks() is optional unless you want to do integrative analysis.
 	assign("OUTPUT_DIR", OUTPUT_DIR, envir = export_env)
 	assign("GENOMIC_FEATURE_LIST", GENOMIC_FEATURE_LIST, envir = export_env)
 	assign("MARKS", MARKS, envir = export_env)
+
+	cat("\nvalidation passed and global variables are imported.\n")
 }

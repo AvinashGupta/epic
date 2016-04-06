@@ -145,15 +145,16 @@ GENOMIC_FEATURE_LIST = lapply(GENOMIC_FEATURE_LIST, function(x) {
 
 MARKS = c("H3K4me3", "H3K4me1")
 
-chipseq_hook$sample_id = function(mark) {
+chipseq_hooks$sample_id = function(mark) {
     sample_id = dir("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/narrow_peaks", pattern = qq("E\\d+-@{mark}.narrowPeak.gz"))
     sample_id = gsub(qq("-@{mark}.narrowPeak.gz"), "", sample_id)
     intersect(sample_id, rownames(SAMPLE))
 }
 
-chipseq_hook$peak = function(mark, sid) {
-    message("reading peaks: @{sid}, @{mark}")
+chipseq_hooks$peak = function(mark, sid) {
+    qqcat("reading peaks: @{sid}, @{mark}")
     df = read.table(qq("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/narrow_peaks/@{sid}-@{mark}.narrowPeak.gz"), stringsAsFactors = FALSE)
-    GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]]+1, df[[3]]), density = df[[5]])
+    gr = GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]]+1, df[[3]]), density = df[[5]])
+    gr[seqnames(gr) %in% CHROMOSOME]
 }
 
