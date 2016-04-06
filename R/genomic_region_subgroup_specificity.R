@@ -6,6 +6,7 @@
 # -gr_list a list of `GenomicRanges::GRanges`, better have names
 # -min_width minimum width of the common regions
 # -min_coverage minimum cross-sample coverage for the common regions
+# -gap gap to merge common regions, pass to `reduce2`
 #
 # == details
 # A common region is defined a region which at least i samples overlap with.
@@ -15,7 +16,11 @@
 # == value
 # a GRanges object contains coordinates of common regions. The columns in meta data
 # are percent of the common region which is covered by regions in every sample.
-common_regions = function(gr_list, min_width = 0, min_coverage = 1) {
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+common_regions = function(gr_list, min_width = 0, min_coverage = 1, gap = bp(0)) {
 	
 	if(min_coverage < 1) {
 		stop("`mincoverage` should be larger than 0.\n")
@@ -27,14 +32,14 @@ common_regions = function(gr_list, min_width = 0, min_coverage = 1) {
 		
 		gr_merge = c(gr_merge, gr_list[[i]])
 
-		message(qq("merging @{i}/@{length(gr_list)} samples"))
+		message(qq("merging @{i}/@{length(gr_list)} samples", code.pattern = "@\\{CODE\\}"))
 	}
 	
 	message("calculating cross-sample coverage")
 	cov = coverage(gr_merge)
 	gr_cov = as(cov, "GRanges")
 	
-	gr_common = reduce(gr_cov[mcols(gr_cov)$score >= min_coverage])
+	gr_common = reduce2(gr_cov[mcols(gr_cov)$score >= min_coverage], gap = gap)
 
 	if(length(gr_common) == 0) {
 		message("No common regions was detected.\n")
@@ -43,7 +48,7 @@ common_regions = function(gr_list, min_width = 0, min_coverage = 1) {
 	
 	gr_common = gr_common[ width(gr_common) >= min_width ]
 
-	message(qq("there are @{length(gr_common)} common regions"))
+	message(qq("there are @{length(gr_common)} common regions", code.pattern = "@\\{CODE\\}"))
 	
 	# calculate the percentage for each CR covered by gr_list
 	message("overlapping `gr_list` to common regions.")
@@ -78,6 +83,10 @@ common_regions = function(gr_list, min_width = 0, min_coverage = 1) {
 # contains regions corresponding to different subgroup specificity.
 #
 # The returned value can be sent to `plot_subgroup_specificity_heatmap` to visualize the specificity.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 subgroup_specific_genomic_regions = function(gr, factors, 
 	present = 0.7, absent = 0.3, type = NULL) {
 
@@ -114,7 +123,7 @@ subgroup_specific_genomic_regions = function(gr, factors,
 	names(gr_list) = type
 	
 	for(i in seq_along(type)) {
-		message(qq("extracting pattern of '@{type[i]}'..."))
+		message(qq("extracting pattern of '@{type[i]}'...", code.pattern = "@\\{CODE\\}"))
 		l = sapply(seq_len(nrow(mat)), function(k) {
 			x = mat[k, ]
 			for(j in seq_along(level)) {
@@ -158,6 +167,13 @@ subgroup_specific_genomic_regions = function(gr, factors,
 #
 # == details
 # columns are clustered inside each subgroup.
+#
+# == value
+# A `ComplexHeatmap::HeatmapList-class` object
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 plot_subgroup_specificity_heatmap = function(gr_list, genomic_features = NULL) {
 	
 	if(is.null(attr(gr_list, "generated_by"))) {
@@ -187,7 +203,7 @@ plot_subgroup_specificity_heatmap = function(gr_list, genomic_features = NULL) {
 		sub_matrix = mcols(gr_list[[i]])[, grepl("^overlap_to_", colnames(mcols(gr_list[[i]])))]
 		sub_matrix = as.matrix(sub_matrix)
 		colnames(sub_matrix) = cn
-		message(qq("cluster sub-matrix @{gr_list_name[i]} on rows (@{length(gr_list[[i]])} rows)."))
+		message(qq("cluster sub-matrix @{gr_list_name[i]} on rows (@{length(gr_list[[i]])} rows).", code.pattern = "@\\{CODE\\}"))
 		rclust = hclust(dist(sub_matrix))
 		mat = rbind(mat, sub_matrix[rclust$order, ])
 		gr_combine = c(gr_combine, gr_list[[i]][rclust$order])
@@ -198,7 +214,7 @@ plot_subgroup_specificity_heatmap = function(gr_list, genomic_features = NULL) {
 	# globally cluster inside each subgroup
 	mat2 = NULL
 	for(le in level) {
-		message(qq("cluster @{le} on columns."))
+		message(qq("cluster @{le} on columns.", code.pattern = "@\\{CODE\\}"))
 		m = mat[, factors == le]
 		cclust = hclust(dist(t(m)))
 		mat2 = cbind(mat2, m[, cclust$order])
@@ -225,6 +241,6 @@ plot_subgroup_specificity_heatmap = function(gr_list, genomic_features = NULL) {
 			width = unit(2, "mm")*length(genomic_features))
 	}
 
-	message(qq("generating heatmap, (@{nrow(mat2)}, @{ncol(mat2)})"))
+	message(qq("generating heatmap, (@{nrow(mat2)}, @{ncol(mat2)})", code.pattern = "@\\{CODE\\}"))
 	ht_list
 }

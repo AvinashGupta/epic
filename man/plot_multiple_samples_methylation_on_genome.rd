@@ -17,7 +17,7 @@ plot_multiple_samples_methylation_on_genome(sample_id, annotation,
   \item{chromosome}{chromosome}
   \item{species}{species}
   \item{nw}{number of windows}
-  \item{...}{pass to \code{\link[gtrellis]{initialize_layout}}}
+  \item{...}{pass to \code{\link[gtrellis]{gtrellis_layout}}}
 
 }
 \details{

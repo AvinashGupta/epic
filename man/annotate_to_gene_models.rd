@@ -40,6 +40,9 @@ Following columns are attached to \code{gr}:
   \item{prefix_to_threeUTR}{percent of the region which is covered by 3'UTR}
 }
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

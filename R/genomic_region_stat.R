@@ -25,6 +25,9 @@
 # == value
 # A data frame which contains statistics for each chromosome in each sample.
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 basic_genomic_regions_stat = function(gr_list, annotation = NULL, annotation_color = NULL, 
 	main = NULL, species = "hg19", type = c("proportion", "number", "median_width"),
 	by_chr = FALSE) {
@@ -38,17 +41,17 @@ basic_genomic_regions_stat = function(gr_list, annotation = NULL, annotation_col
 
 	# just need the chromosome information
 	chromInfo = read.chromInfo(species = species)
-            chr_len = sort(chromInfo$chr.len, decreasing = TRUE)
+    chr_len = sort(chromInfo$chr.len, decreasing = TRUE)
 
-            # sometimes there are small scaffold
-            i = which(chr_len[seq_len(length(chr_len)-1)] / chr_len[seq_len(length(chr_len)-1)+1] > 5)[1]
-            if(length(i)) {
-                chromosome = chromInfo$chromosome[chromInfo$chromosome %in% names(chr_len[chr_len >= chr_len[i]])]
-            } else {
-                chromosome = chromInfo$chromosome
-            }
+    # sometimes there are small scaffold
+    i = which(chr_len[seq_len(length(chr_len)-1)] / chr_len[seq_len(length(chr_len)-1)+1] > 5)[1]
+    if(length(i)) {
+        chromosome = chromInfo$chromosome[chromInfo$chromosome %in% names(chr_len[chr_len >= chr_len[i]])]
+    } else {
+        chromosome = chromInfo$chromosome
+    }
 
-            category = chromosome
+    category = chromosome
         
     chromInfo = read.chromInfo(species = species, chromosome.index = category)
 	

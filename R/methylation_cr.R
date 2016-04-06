@@ -71,7 +71,7 @@ correlated_regions_per_gene = function(site, meth, cov, expr, chr, cov_cutoff = 
 		})
 	}
 	if(nrow(m) == 1) {
-		meth_IQR = iqr(m)
+		meth_IQR = IQR(m, na.rm = TRUE)
 	} else {
 		meth_IQR = rowIQRs(m, na.rm = TRUE)
 	}
@@ -358,7 +358,11 @@ filter_correlated_regions = function(chromosome = paste0("chr", 1:22), template,
 }
 
 # == title
-# plot that helps to choose a gap
+# plot that helps to choose a gap value
+#
+# == param
+# -cr correlated regions
+#
 reduce_cr_gap_test = function(cr) {
 	neg_cr = cr[cr$corr < 0]
 	neg_cr_list = split(as.data.frame(neg_cr), neg_cr$gene_id)
@@ -396,7 +400,7 @@ reduce_cr_gap_test = function(cr) {
 #
 # == param
 # -cr cr 
-# -expe expression
+# -expr expression
 # -txdb txdb
 # -max_gap maximum gap
 # -gap gap
@@ -492,6 +496,7 @@ reduce_cr = function(cr, expr, txdb, max_gap = 1000, gap = 1.0, mc.cores = 1) {
 # == param
 # -cr cr
 # -cutoff cutoff for ANOVA test
+# -suffix suffix
 #
 # == details
 # 1 is defined as the methylation is higher than all other subtypes and the difference is significant.

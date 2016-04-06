@@ -15,7 +15,7 @@
 #
 # == details
 # Providing a huge vector of genomic positions, we want to extract subset of sites which
-# locate in a specific region. Normally, we will use:
+# locate in a specific region (e.g. extract CpG sites in DMRs). Normally, we will use:
 #
 # 	site = sort(sample(10000000, 1000000))
 # 	start = 123456
@@ -28,7 +28,7 @@
 # loop, the whole ``site`` vector will be re-scanned again and again which is very time-consuming.
 #
 # Here we have `extract_sites` function which uses binary search to do subsetting.
-# Of course, ``site`` should be sorted non-decreasing in the first place.
+# Of course, ``site`` should be sorted non-decreasing beforehand.
 #
 # 	subsite = extract_sites(start, end, site, index = FALSE)
 #
@@ -65,6 +65,8 @@
 # 		which(site >= pos[i, 1] & site <= pos[i, 2])
 # 	})
 # 	t1
+#   #   user  system elapsed
+#   # 29.878   2.904  33.432
 #
 # 	site2 = as.double(site)
 # 	pos2 = as.double(pos)
@@ -73,12 +75,18 @@
 # 		extract_sites(pos2[i, 1], pos2[i, 2], site2)
 # 	})
 # 	t2
+#   #  user  system elapsed
+#   # 1.515   0.783   2.436
 #
 #
 # == value
 # a vector of positions or index. If there is no sites in the interval, it will return ``NULL``.
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 extract_sites = function(start, end, site, index = TRUE, filter_fun = NULL) {
+
 	if(!is.double(site)) site = as.double(site)
 	if(!is.double(start)) start = as.double(start)
 	if(!is.double(end)) end = as.double(end)

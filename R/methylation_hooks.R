@@ -29,6 +29,9 @@
 #
 # Note: positions of CpG sites in a chromosome should be sorted.
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 methylation_hooks = function(..., RESET = FALSE, READ.ONLY = NULL, LOCAL = FALSE) {}
 methylation_hooks = setGlobalOptions(
 	set = list(.value = function(chr) stop("you need to define `set`"),

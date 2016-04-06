@@ -7,7 +7,7 @@ chord diagram for chromatin states transistion
 chord diagram for chromatin states transistion
 }
 \usage{
-chromatin_states_transition_chord_diagram(mat, max_mat = mat, cate1, cate2, ...)
+chromatin_states_transition_chord_diagram(mat, max_mat = mat, cate1, cate2, grid.col, ...)
 }
 \arguments{
 
@@ -15,6 +15,7 @@ chromatin_states_transition_chord_diagram(mat, max_mat = mat, cate1, cate2, ...)
   \item{max_mat}{if there are several matrix, set it to the matrix with maximum sum}
   \item{cate1}{name of row states}
   \item{cate2}{name fo column states}
+  \item{grid.col}{color for grids}
   \item{...}{pass to \code{\link[circlize]{chordDiagram}}}
 
 }

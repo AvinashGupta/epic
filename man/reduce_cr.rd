@@ -12,7 +12,7 @@ reduce_cr(cr, expr, txdb, max_gap = 1000, gap = 1.0, mc.cores = 1)
 \arguments{
 
   \item{cr}{cr }
-  \item{expe}{expression}
+  \item{expr}{expression}
   \item{txdb}{txdb}
   \item{max_gap}{maximum gap}
   \item{gap}{gap}

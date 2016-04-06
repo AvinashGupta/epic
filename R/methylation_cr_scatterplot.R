@@ -74,7 +74,7 @@ scatterplot_with_boxplot = function(x, y, annotation = rep("unknown", length(x))
 	xrange = xlim
 	yrange = ylim
 
-	layout(rbind(1:2, 3:4), width=c(1, 2), height=c(2, 1))
+	layout(rbind(1:2, 3:4), widths=c(1, 2), heights=c(2, 1))
     par(mar = c(0, 5, 5, 0))
     boxplot(y ~ annotation, ylim = yrange, axes = FALSE, ann = FALSE, col = annotation_color[levels(annotation)])
     box()

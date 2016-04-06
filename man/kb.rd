@@ -1,17 +1,17 @@
 \name{kb}
 \alias{kb}
 \title{
-define kb
+Mark that the numbers represent number of kilo bases
 }
 \description{
-define kb
+Mark that the numbers represent number of kilo bases
 }
 \usage{
 kb(x)
 }
 \arguments{
 
-  \item{x}{integer}
+  \item{x}{numeric vector.}
 
 }
 \examples{

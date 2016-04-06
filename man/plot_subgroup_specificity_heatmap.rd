@@ -18,6 +18,12 @@ plot_subgroup_specificity_heatmap(gr_list, genomic_features = NULL)
 \details{
 columns are clustered inside each subgroup.
 }
+\value{
+A \code{\link[ComplexHeatmap]{HeatmapList-class}} object
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

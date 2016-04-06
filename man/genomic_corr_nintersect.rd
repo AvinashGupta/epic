@@ -1,5 +1,5 @@
-\name{genomicCorr.nintersect}
-\alias{genomicCorr.nintersect}
+\name{genomic_corr_nintersect}
+\alias{genomic_corr_nintersect}
 \title{
 Intersections between two sets of genomic regions
 }
@@ -7,7 +7,7 @@ Intersections between two sets of genomic regions
 Intersections between two sets of genomic regions
 }
 \usage{
-genomicCorr.nintersect(query, reference, ...)
+genomic_corr_nintersect(query, reference, ...)
 }
 \arguments{
 
@@ -24,6 +24,9 @@ because one region in \code{query} may overlap with more than one
 regions in \code{reference}
 
 Be careful with the \code{strand} in your GRanges object!!
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

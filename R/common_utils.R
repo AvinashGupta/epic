@@ -51,21 +51,42 @@ return2 = function(expr, invisible = FALSE) {
 	}
 }
 
-set_counter = function(n) {
+# == title
+# Set a counter for a loop
+#
+# == param
+# -n maximum number of looping
+# -fmt format of message
+#
+# == value
+# a function which should be called in the loop
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# counter = set_counter(1000)
+# for(i in 1:1000) {counter()}
+# counter = set_counter(1000, fmt = "processing \%s")
+# for(i in 1:1000) {counter()}
+set_counter = function(n, fmt = "%s") {
 
 	n = as.integer(n)
 	i = 1
 
 	f = function() {
+		if(interactive()) {
+			pct = round(i/n*100, 1)
+			str = paste0(i, "/", n, " (", pct, "%)")
+			str = sprintf(fmt, str)
 
-		i = as.integer(i)
-		pct = sprintf("%.1f", i/n*100)
-		cat(paste(rep("\b", 100), collapse=""))
-		cat(i, "/", n, " (", pct, "%)", sep = "")
+			cat(paste(rep("\b", 200), collapse=""))
+			cat(str)
+			if(i == n) cat("\n")
 
-		if(i == n) cat("\n")
-
-		i <<- i + 1
+			i <<- i + 1
+			return(invisible(i))
+		}
 	}
 }
 
@@ -120,24 +141,52 @@ subset_txdb = function(txdb, chromosome = "chr1") {
 }
 
 
+# == title
+# Find neighbour regions
+#
+# == param
+# -query a `GenomicRanges::GRanges` object
+# -reference a `GenomicRanges::GRanges` object 
+# -upstream upstream that ``query`` is extended
+# -downstream downstream that ``query`` is extended
+#
+# == details
+# With a certain extension of ``query``, this funciton looks for ``reference`` which intersects the extended regions.
+#
+# == value
+# A `GenomicRanges::GRanges` object which contains regions in ``reference`` that overlap with extended ``query``.
+# There are three meta columns added:
+#
+# -distance: distance from the ``reference`` to corresponding ``query``
+# -query_index: index of region in ``query``
+# -reference_index: index of regions in ``reference`` 
+#
+# Note one ``reference`` can correspond to multiple ``query`` regions.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# gr1 = GRanges(seqname = "chr1", ranges = IRanges(start = c(4, 10), end = c(6, 16)))
+# gr2 = GRanges(seqname = "chr1", ranges = IRanges(start = c(7, 13), end = c(8, 20)))
+# find_neighbours(gr1, gr2, upstream = 3, downstream = 3)
+# find_neighbours(gr1, gr2, upstream = 10, downstream = 10)
+find_neighbours = function(query, reference, upstream = 1000, downstream = 1000) {
 
-findNeighbours = function(gr1, gr2, upstream = 1000, downstream = 1000) {
-	gr_extended = gr1
-	strd = strand(gr1)
-	start(gr_extended) = ifelse(strd == "-", start(gr1) - downstream, start(gr1) - upstream)
-	end(gr_extended) = ifelse(strd == "-", end(gr1) + upstream, end(gr1) + downstream)
+	query_extended = query
+	strd = strand(query)
+	start(query_extended) = ifelse(strd == "-", start(query) - downstream, start(query) - upstream)
+	end(query_extended) = ifelse(strd == "-", end(query) + upstream, end(query) + downstream)
 
-	mtch = findOverlaps(gr_extended, gr2)
+	mtch = findOverlaps(query_extended, reference)
 
 	mtch = as.matrix(mtch)
-	neighbours = gr2[mtch[,2]]
-	neighbours$distance = distance(gr2[mtch[,2]], gr1[mtch[,1]])
+	neighbours = query[mtch[, 1]]
+	neighbours$distance = distance(query[mtch[,1]], reference[mtch[,2]])
 
-	neighbours$host_id = names(gr1[mtch[,1]])
-	if(!is.null(names(gr2))) {
-		neighbours = neighbours[names(neighbours) != neighbours$host_id]
-	}
-	neighbours
+	neighbours$query_index = mtch[, 1]
+	neighbours$reference_index = mtch[, 2]
+	return(neighbours)
 }
 
 
@@ -166,14 +215,23 @@ set_proper_seqlengths = function(gr, species) {
 }
 
 # == title
-# pair-wise correlation of rows in a huge matrix
+# pair-wise correlation of rows in a matrix with huge number of columns
 #
 # == param
-# -x a matrix
+# -x a matrix, correlation is calculated by columns
 # -abs_cutoff cutoff of absolute correlation
 # -size size of blocks
 # -mc multiple cores
 # -... pass to `stats::cor`
+#
+# == details
+# The code is adapted from https://rmazing.wordpress.com/2013/02/22/bigcor-large-correlation-matrices-in-r/
+#
+# == value
+# a vector that represents how many other columns correlate to current column under the correlation cutoff
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 cor_cols = function (x, abs_cutoff = 0.5, size = 1000, mc = 1, ...) {
     
@@ -186,7 +244,7 @@ cor_cols = function (x, abs_cutoff = 0.5, size = 1000, mc = 1, ...) {
 	    if (REST > 0)
 	        GROUP <- c(GROUP, rep(NBLOCKS + 1, REST))
 	    split(1:n, GROUP)
-    }	
+    }
 
     NCOL <- ncol(x)
     SPLIT = split_by_block(NCOL, size)
@@ -232,114 +290,114 @@ cor_cols = function (x, abs_cutoff = 0.5, size = 1000, mc = 1, ...) {
 }
 
 
-genes = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::genes(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
+# genes = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::genes(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
 
-transcripts = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::transcripts(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
+# transcripts = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::transcripts(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
 
-exons = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::exons(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
+# exons = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::exons(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
 
-intronsByTranscript = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::intronsByTranscript(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
-fiveUTRsByTranscript = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::fiveUTRsByTranscript(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
-threeUTRsByTranscript = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::threeUTRsByTranscript(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
-disjointExons = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::disjointExons(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
-transcriptsBy = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- GenomicFeatures::transcriptsBy(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
-GeneRegionTrack = function(..., max_try = 100, sleep = 60) {
-	n_try = 0
-	while(n_try <= max_try) {
-		oe = try(res <- Gviz::GeneRegionTrack(...))
-		if(inherits(oe, "try-error")) {
-			Sys.sleep(sleep)
-			n_try = n_try + 1
-		} else {
-			return(res)
-		}
-	}
-}
+# intronsByTranscript = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::intronsByTranscript(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
+# fiveUTRsByTranscript = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::fiveUTRsByTranscript(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
+# threeUTRsByTranscript = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::threeUTRsByTranscript(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
+# disjointExons = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::disjointExons(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
+# transcriptsBy = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- GenomicFeatures::transcriptsBy(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }
+# GeneRegionTrack = function(..., max_try = 100, sleep = 60) {
+# 	n_try = 0
+# 	while(n_try <= max_try) {
+# 		oe = try(res <- Gviz::GeneRegionTrack(...))
+# 		if(inherits(oe, "try-error")) {
+# 			Sys.sleep(sleep)
+# 			n_try = n_try + 1
+# 		} else {
+# 			return(res)
+# 		}
+# 	}
+# }

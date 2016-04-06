@@ -49,7 +49,7 @@ cr_enriched_at_tss = function(cr, txdb) {
 	lines(x_neg, col = "green")
 	abline(v = length(x_pos)/3, lty = 2, col = "grey")
 	axis(side = 2)
-	axis(side = 1, at = seq(1, length(x_pos), length = 7), label = c(-10000, -5000, 0, 5000, 10000, 15000, 20000))
+	axis(side = 1, at = seq(1, length(x_pos), length = 7), labels = c(-10000, -5000, 0, 5000, 10000, 15000, 20000))
 
 	par(new = TRUE)
 	plot(colSums(mat_tx), type = "l", col = "blue", axes = FALSE, ann = FALSE)
@@ -73,7 +73,7 @@ cr_enriched_at_tss = function(cr, txdb) {
 	lines(x_neg, col = "green")
 	abline(v = length(x_pos)/3, lty = 2, col = "grey")
 	axis(side = 2)
-	axis(side = 1, at = seq(1, length(x_pos), length = 7), label = c(-10000, -5000, 0, 5000, 10000, 15000, 20000))
+	axis(side = 1, at = seq(1, length(x_pos), length = 7), labels = c(-10000, -5000, 0, 5000, 10000, 15000, 20000))
 
 	legend("topright", lty = 1, col = c("green", "red"), legend = c("neg_cr", "pos_cr"))
 }
@@ -114,9 +114,9 @@ enriched_heatmap_list_on_gene = function(cr, cgi, txdb, expr, hm_list = NULL, hm
 			l = !(tx$tx_name %in% gene$gene_id)
 			tx = tx[l]
 			names(tx) = tx$tx_name
-			nearest_tx = tx[tx$tx_name %in% cr_filtered$nearest_tx_tss]
+			nearest_tx = tx[tx$tx_name %in% cr$nearest_tx_tss]
 			names(nearest_tx) = nearest_tx$tx_name
-			nearest_tx$gene_id = structure(cr_filtered$gene_id, names = cr_filtered$nearest_tx_tss)[names(nearest_tx)]
+			nearest_tx$gene_id = structure(cr$gene_id, names = cr$nearest_tx_tss)[names(nearest_tx)]
 			nearest_tx_tss = promoters(nearest_tx, upstream = 1, downstream = 0)
 			tss = nearest_tx_tss
 			mapping_column = "nearest_tx_tss"
@@ -157,7 +157,7 @@ enriched_heatmap_list_on_gene = function(cr, cgi, txdb, expr, hm_list = NULL, hm
 		if(length(hm_list) >= 5) {
 			# detect regions that histone marks correlate to expression
 			expr2 = expr[target$gene_id, intersect(colnames(expr), sample)]
-			cor_mat = matrix(nr = nrow(expr2), nc = ncol(mat))
+			cor_mat = matrix(nrow = nrow(expr2), ncol = ncol(mat))
 			cor_p_mat = cor_mat
 
 			counter = set_counter(nrow(cor_mat))
@@ -456,7 +456,7 @@ enriched_heatmap_list_on_genomic_features = function(cr, gf, hm_list = NULL, hm_
 		hist_mat_list = enrich_with_histone_mark(gf2, hm_list, sample_id, factor)
 		ymin = min(sapply(hist_mat_list, function(mat) min(colMeans(mat, na.rm = TRUE))))
 		ymax = max(sapply(hist_mat_list, function(mat) max(colMeans(mat, na.rm = TRUE))))
-		if(ymax > ylim) {
+		if(ymax > ymin) {
 			for(type in names(hist_mat_list)) {
 				ht_list = ht_list + EnrichedHeatmap(hist_mat_list[[type]], col = c("white", "purple"), name = qq("hist_@{type}"),
 					column_title = type, axis_name = c("-5kb", "start", "end", "5kb"), show_heatmap_legend = type == names(hist_mat_list)[1],

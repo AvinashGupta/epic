@@ -13,15 +13,17 @@
 # -background a `GenomicRanges::GRanges` object, the genomic background to be restricted in
 # -chromosome chromosomes
 # -species species, used for random shuffling genomic regions
-# -nperm number of permutations
+# -nperm number of permutations. If it is set to 0, no permutation will be performed.
 # -mc.cores number of cores for parallel calculation
 # -stat_fun method to calculate correlations. There are some pre-defined functions:
-#           `genomicCorr.reldist`, `genomicCorr.absdist`, `genomicCorr.jaccard`,
-#           `genomicCorr.nintersect`, `genomicCorr.pintersect`, `genomicCorr.sintersect`.
+#           `genomic_corr_reldist`, `genomic_corr_absdist`, `genomic_corr_jaccard`,
+#           `genomic_corr_nintersect`, `genomic_corr_pintersect`, `genomic_corr_sintersect`.
 #           The self-defined function should accept at least two arguments which are two GRanges object.
 #           The third argument is ``...`` which is passed from the main function. The function
 #           should only return a numeric value.
 # -... pass to ``stat_fun``
+# -bedtools_binary file for __bedtools__
+# -tmpdir tempoary dir
 #
 # == details
 # The correlation between two sets of genomic regions basicly means how much the first type of genomic regions
@@ -43,16 +45,27 @@
 # -stat_random_mean mean value of stat in random shuffling
 # -stat_random_sd standard deviation in random shuffling
 #
+# == seealso
+# `genomic_corr_reldist`, `genomic_corr_jaccard`, `genomic_corr_absdist`, `genomic_corr_nintersect`, `genomic_corr_pintersect`, `genomic_corr_sintersect`
+#
 genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 	chromosome = paste0("chr", 1:22), species = "hg19",
-	nperm = 1000, mc.cores = 1, stat_fun = genomicCorr.jaccard, ...) {
+	nperm = 0, mc.cores = 1, stat_fun = genomic_corr_jaccard, ..., 
+	bedtools_binary = Sys.which("bedtools"), tmpdir = tempdir()) {
+	
+	qq.options(LOCAL = TRUE)
+	qq.options(code.pattern = "@\\{CODE\\}")
 	
 	## check input
 	if(inherits(gr_list_1, "GRanges")) {
-		gr_list_1 = list("gr_list_1" = gr_list_1)
+		gr_name_1 = deparse(substitute(gr_list_1))
+		gr_list_1 = list(gr_list_1)
+		names(gr_list_1) = gr_name_1
 	}
 	if(inherits(gr_list_2, "GRanges")) {
-		gr_list_2 = list("gr_list_2" = gr_list_2)
+		gr_name_2 = deparse(substitute(gr_list_2))
+		gr_list_2 = list(gr_list_2)
+		names(gr_list_2) = gr_name_2
 	}
 	
 	if(is.null(names(gr_list_1))) {
@@ -62,12 +75,18 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 		stop("`gr_list_2` should have names.\n")
 	}
 
-	message("merging potential overlapped regions in gr_list_1.")
+	if(nperm > 1) {
+		if(file.exists(bedtools_binary)) {
+			stop("Cannot find binary file for bedtools.")
+		}
+	}
+
+	message("set strand to * and merge potential overlapped regions in gr_list_1.")
 	gr_list_1 = lapply(gr_list_1, function(gr) {
 		strand(gr) = "*"
 		reduce(sort(gr))
 	})
-	message("merging potential overlapped regions in gr_list_2.")
+	message("set strand to * and merge potential overlapped regions in gr_list_2.")
 	gr_list_2 = lapply(gr_list_2, function(gr) {
 		strand(gr) = "*"
 		reduce(sort(gr))
@@ -101,7 +120,7 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 	}
 
 	chr_len_df = getChromInfoFromUCSC(species)
-	chr_len_df = chr_len_df[chr_len_df[[1]] %in% chromosome, , drop = FALSE]  # need for bedtools shuffle
+	chr_len_df = chr_len_df[chr_len_df[[1]] %in% chromosome, , drop = FALSE]  # needed for bedtools shuffle
 
 	# prepare values that will be returned
 	foldChange = matrix(0, nrow = length(gr_list_2), ncol = length(gr_list_1))
@@ -113,10 +132,10 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 	stat_random_sd = stat
 
 	# cache chr_len_df and background files
-	chr_len_df_tmp = tempfile()
+	chr_len_df_tmp = tempfile(tmpdir = tmpdir)
 	write.table(chr_len_df, file = chr_len_df_tmp, sep = "\t", row.names = FALSE, col.names= FALSE, quote = FALSE)
 	if(!is.null(background)) {
-		background_df_tmp = tempfile()
+		background_df_tmp = tempfile(tmpdir = tmpdir)
 		write.table(background_df, file = background_df_tmp, sep = "\t", row.names = FALSE, col.names= FALSE, quote = FALSE)
 	}
 
@@ -141,9 +160,9 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 			res = mclapply(seq_len(nperm), mc.cores = mc.cores, function(k) {
 				
 				if(is.null(background)) {
-					gr_random = systemdf(qq("bedtools shuffle -i @{gr_list_1_df_tmp} -g @{chr_len_df_tmp}"))
+					gr_random = systemdf(qq("'@{bedtools_binary}' shuffle -i '@{gr_list_1_df_tmp}' -g '@{chr_len_df_tmp}'"))
 				} else {
-					gr_random = systemdf(qq("bedtools shuffle -i @{gr_list_1_df_tmp} -g @{chr_len_df_tmp} -incl @{background_df_tmp}"))
+					gr_random = systemdf(qq("'@{bedtools_binary}' shuffle -i '@{gr_list_1_df_tmp}' -g '@{chr_len_df_tmp}' -incl '@{background_df_tmp}'"))
 				}
 
 				gr_random = GRanges(seqnames = gr_random[[1]], ranges = IRanges(gr_random[[2]], gr_random[[3]]))
@@ -192,12 +211,13 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 		stat_random_sd = NULL
 	}
 
-	res = list(foldChange = foldChange, 
+	res = list(stat = stat,
+		       foldChange = foldChange, 
 		       p.value = p,
-		       stat = stat,
 		       stat_random_mean = stat_random_mean,
 		       stat_random_sd = stat_random_sd)
 	
+	qq.options(LOCAL = FALSE)
 	return2(res)
 }
 
@@ -211,20 +231,22 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 # == details
 # For regions in ``query`` and ``reference``, they are all degenerated as single points
 # which are the middle points of regions. For each middle point in ``query``, it looks 
-# for the nearest point in ``reference``. The statistics is defined as the ratio of the distance
-# to nearest point in ``reference`` to the distance of two nearest points in ``reference`` which 
-# cover the middle point in ``query``. If ``query`` and ``reference`` are not correlated at all,
+# for two nearest points in ``reference`` on its left and right. The statistic is defined as the ratio of the distance
+# to the nearest neighbour point to the distance of two neighbour points. If ``query`` and ``reference`` are not correlated at all,
 # It is expected that the ratio follows a uniform distribution. So final statisitics are the KS-statistics
 # between the real distribution of rations to the uniform distribution.
 #
-#     ----|*************|----- reference
-#     -----***|--------------- query
+#     ----o*************o----- reference
+#     -----***o--------------- query
 #          ratio = 3/13
 #
 # == reference
 # Favoriv A, et al. Exploring massive, genome scale datasets with the GenometriCorr package. PLoS Comput Biol. 2012 May; 8(5):e1002529
 # 
-genomicCorr.reldist = function(query, reference) {
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+genomic_corr_reldist = function(query, reference) {
 	# GRanges for mid-points
 	query_mid = ceiling( (start(query) + end(query))/2 )
 	reference_mid = ceiling( (start(reference) + end(reference))/2 )
@@ -268,7 +290,7 @@ genomicCorr.reldist = function(query, reference) {
 # == param
 # -query genomic region 1, a `GenomicRanges::GRanges` object
 # -reference genomic region 2, a `GenomicRanges::GRanges` object
-# -restrict background regions that should be only looked in, a `GenomicRanges::GRanges` object
+# -background background regions that should be only looked in, a `GenomicRanges::GRanges` object
 #
 # == details
 # Jaccard coefficient is defined as the total length of intersection divided by total
@@ -276,19 +298,19 @@ genomicCorr.reldist = function(query, reference) {
 #
 # You can set the background when calculating Jaccard coefficient. For example,
 # if the interest is the Jaccard coefficient between CpG sites in ``query`` and in ``reference``
-# ``restrict`` can be set with a GRanges object which contains positions of CpG sites.
+# ``background`` can be set with a GRanges object which contains positions of CpG sites.
 #
 # Be careful with the ``strand`` in your `GenomicRanges::GRanges` object!!
 #
-genomicCorr.jaccard = function(query, reference, restrict = NULL) {
-	if(is.null(restrict)) {
+genomic_corr_jaccard = function(query, reference, background = NULL) {
+	if(is.null(background)) {
 		res = sum(width(intersect(query, reference))) / sum(as.numeric(width(union(query, reference))))
 	} else {
 		gr1 = intersect(query, reference)
-		gr1 = intersect(gr1, restrict)
+		gr1 = intersect(gr1, background)
 
 		gr2 = union(query, reference)
-		gr2 = intersect(gr2, restrict)
+		gr2 = intersect(gr2, background)
 		res = sum(width(gr1)) / sum(width(gr2))
 	}
 	return(res)
@@ -311,7 +333,10 @@ genomicCorr.jaccard = function(query, reference, restrict = NULL) {
 # == reference
 # Favoriv A, et al. Exploring massive, genome scale datasets with the GenometriCorr package. PLoS Comput Biol. 2012 May; 8(5):e1002529
 #
-genomicCorr.absdist = function(query, reference, method = mean, ...) {
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+genomic_corr_absdist = function(query, reference, method = mean, ...) {
 	# GRanges for mid-points
 	query_mid = ceiling( (start(query) + end(query))/2 )
 	reference_mid = ceiling( (start(reference) + end(reference))/2 )
@@ -348,7 +373,11 @@ genomicCorr.absdist = function(query, reference, method = mean, ...) {
 # regions in ``reference``
 #
 # Be careful with the ``strand`` in your GRanges object!!
-genomicCorr.nintersect = function(query, reference, ...) {
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+genomic_corr_nintersect = function(query, reference, ...) {
 	x = countOverlaps(query, reference, ...)
 	res = sum(x > 0)
 	return(res)
@@ -360,7 +389,6 @@ genomicCorr.nintersect = function(query, reference, ...) {
 # == param
 # -query genomic region 1, a `GenomicRanges::GRanges` object
 # -reference genomic region 2, a `GenomicRanges::GRanges` object
-# -method function in which the input is the percentage of each ``query`` that is overlaped in ``reference`` and output is a scalar
 # -... pass to `percentOverlaps`
 #
 # == details
@@ -369,15 +397,15 @@ genomicCorr.nintersect = function(query, reference, ...) {
 # The returned value is percent which is how much ``query`` is covered by ``reference`` (by default). 
 #
 # Be careful with the ``strand`` in your GRanges object!!
-genomicCorr.pintersect = function(query, reference, method = NULL, ...) {
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+genomic_corr_pintersect = function(query, reference, ...) {
 	x = percentOverlaps(query, reference, ...)
 	
 	w = width(query)
 	res = sum(x*w)/sum(w)
-	
-	if(!is.null(method)) {
-		res = method(x)
-	}
 	
 	return(res)
 }
@@ -388,19 +416,23 @@ genomicCorr.pintersect = function(query, reference, method = NULL, ...) {
 # == param
 # -query genomic region 1, a `GenomicRanges::GRanges` object
 # -reference genomic region 2, a `GenomicRanges::GRanges` object
-# -restrict subset of sites that should be only looked into, a `GenomicRanges::GRanges` object
+# -background subset of sites that should be only looked into, a `GenomicRanges::GRanges` object
 #
 # == details
 # It calculates the total length of overlapped regions in ``query``.
 #
 # If the interest is e.g. the number of CpG sites both in ``query`` and in ``reference``
-# ``restrict`` can be set with a GRanges object which contains positions of CpG sites.
+# ``background`` can be set with a GRanges object which contains positions of CpG sites.
 #
 # Be careful with the ``strand`` in your GRanges object!!
-genomicCorr.sintersect = function(query, reference, restrict = NULL) {
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+genomic_corr_sintersect = function(query, reference, background = NULL) {
 	x = intersect(query, reference)
-	if(!is.null(restrict)) {
-		x = intersect(x, restrict)
+	if(!is.null(background)) {
+		x = intersect(x, background)
 	}
 	res = sum(width(x))
 	return(res)

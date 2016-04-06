@@ -11,7 +11,7 @@ cr_qc = function(chromosome = paste0("chr", 1:22), template) {
 	cutoff = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
 	diameter = c(0, 0.1, 0.2, 0.3, 0.4)
 	
-	n = matrix(0, nr = length(cutoff), nc = 2)
+	n = matrix(0, nrow = length(cutoff), ncol = 2)
 	n = rep(list(n), length(diameter))
 	w = n
 

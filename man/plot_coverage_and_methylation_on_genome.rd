@@ -16,7 +16,7 @@ plot_coverage_and_methylation_on_genome(sid, chromosome = paste0("chr", 1:22),
   \item{chromosome}{chromosome}
   \item{species}{species}
   \item{nw}{number of windows}
-  \item{...}{pass to \code{\link[gtrellis]{initialize_layout}}}
+  \item{...}{pass to \code{\link[gtrellis]{gtrellis_layout}}}
 
 }
 \details{

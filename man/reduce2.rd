@@ -1,23 +1,40 @@
 \name{reduce2}
 \alias{reduce2}
 \title{
-reduce based on the width of the interval
+Merge genomic regions
 }
 \description{
-reduce based on the width of the interval
+Merge genomic regions
 }
 \usage{
-reduce2(gr, max_gap = 1000, gap = bp(1000))
+reduce2(gr, max_gap = 1000, gap = bp(1000), add_n_column = TRUE)
 }
 \arguments{
 
-  \item{gr}{genomic regions}
-  \item{max_gap}{max gap}
-  \item{gap}{if it is a value less than 1, it is the ratio of the interval}
+  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object}
+  \item{max_gap}{maximum gap to merge, measured in base pairs. Only work if \code{gap} is the ratio.}
+  \item{gap}{a numeric value means to extend each region by \code{gap} times of width before merging. If \code{gap} represents number of base pairs, use \code{\link{bp}}, \code{\link{kb}} or \code{\link{mb}} to wrap it.}
+  \item{add_n_column}{whether to add a column which represents number of regions merged.}
 
 }
-\examples{
-# There is no example
-NULL
+\details{
+\code{\link[GenomicRanges]{reduce}} only merges regions by gaps with fixed width, but sometimes it is not reasonable to set gap
+to a same value for all regions. Assume we have a list of differentially methylated regions (DMRs) and we want to reduce
+the number of DMRs by merging neighouring DMRs. DMRs distribute differently in different areas in genome, i.e. DMRs are dense
+and short in CpG-dense regions (e.g. CpG islands) while long in CpG-sparse regions (e.g. gene bodies and intergenic regions),
+thus the merging should be applied based to the width of every DMR itself. \code{\link{reduce2}} can merge regions by the width of every region itself.
+This type of merging is dynamic that after each merging, width and number of regions change which results in changing of extension
+of some regions. The whole merging will proceed iteratively unless the gap between regions reach \code{max_gap}.
 
+If there are numeric meta columns, corresponding values will be summed up for the merged regions. There will
+be a new column \code{.__n__.} added which represents number of regions that are merged.
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
+\examples{
+gr = GRanges(seqnames = "chr1", ranges = IRanges(start = c(1, 4, 8 ,12), 
+    end = c(2, 5, 10, 20)))
+reduce2(gr, gap = bp(2))
+reduce2(gr, gap = 0.1)
 }

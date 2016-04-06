@@ -1,17 +1,17 @@
 \name{mb}
 \alias{mb}
 \title{
-define mb
+Mark that the numbers represent number of mega bases
 }
 \description{
-define mb
+Mark that the numbers represent number of mega bases
 }
 \usage{
 mb(x)
 }
 \arguments{
 
-  \item{x}{integer}
+  \item{x}{numeric vector.}
 
 }
 \examples{

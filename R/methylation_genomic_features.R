@@ -227,8 +227,23 @@ get_mean_methylation_in_genomic_features = function(sample_id, gf_list, average 
 
 
 # == title
-# 
-methylation_subtype_classfication = function(gr, sample_id, chromosome, p_cutoff, corr_cutoff, k, cgi, ha = NULL) {
+# Classify subtypes by methylation data
+#
+# == param
+# -gr genomic regions
+# -sample_id sample id
+# -chromosome chromosomes
+# -p_cutoff cutoff for p-values
+# -corr_cutoff cutoff for absolute correlation
+# -k number
+# -cgi CpG islands
+# -n_class number of classes
+# -ha additional annotation
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+methylation_subtype_classfication = function(gr, sample_id, chromosome, p_cutoff, corr_cutoff, k, cgi, n_class, ha = NULL) {
 
 	gr_1kb_window = makeWindows(gr, w = 1000, short.keep = TRUE)
 	gr_1kb_window = gr_1kb_window[width(gr_1kb_window) > 500]
@@ -291,18 +306,14 @@ methylation_subtype_classfication = function(gr, sample_id, chromosome, p_cutoff
 	class2 = NULL
 	for(i in unique(class)) {
 		dend = as.dendrogram(hclust(dist(t(mat[row_index, class == i]))))
-		dend = stats:::reorder.dendrogram(dend, colMeans(mat[row_index, class == i]))
+		dend = reorder(dend, colMeans(mat[row_index, class == i]))
 		col_order = order.dendrogram(dend)
 		m = cbind(m, mat[row_index, class == i][, col_order])
-		type = c(type, SAMPLE$type[class == i][col_order])
-		age = c(age, SAMPLE$age[class == i][col_order])
 		class2 = c(class2, class[class == i][col_order])
 	}
-	# ha = HeatmapAnnotation(subtype = type, age = age, consensusCL = class2, 
-	# 	col = list("subtype" = SAMPLE_COLOR, age = AGE_COL_FUN, consensusCL = structure(2:5, names = unique(class2))))
 	ha_cc = HeatmapAnnotation(consensusCL = class2, col = list(consensusCL = structure(seq_along(unique(class2)), names = unique(class2))), show_legend  = FALSE)
 	ht = Heatmap(m, name = "methylation", col = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red")), show_row_names = FALSE,
-		top_annotation = ha, bottom_annotation = hacc, bottom_annotation_height = unit(3, "mm"), split = anno, cluster_columns = FALSE, column_title = qq("@{n} 1kb windows")) + 
+		top_annotation = ha, bottom_annotation = ha_cc, bottom_annotation_height = unit(3, "mm"), split = anno, cluster_columns = FALSE, column_title = qq("@{n} 1kb windows")) + 
 	Heatmap(anno, name = "anno", col = c("CGI" = "orange", "Shore" = "green", "Others" = "blue"))
 
 	draw(ht)

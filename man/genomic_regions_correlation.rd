@@ -9,7 +9,8 @@ Correlation between two sets of genomic regions
 \usage{
 genomic_regions_correlation(gr_list_1, gr_list_2, background = NULL,
     chromosome = paste0("chr", 1:22), species = "hg19",
-    nperm = 1000, mc.cores = 1, stat_fun = genomicCorr.jaccard, ...)
+    nperm = 0, mc.cores = 1, stat_fun = genomic_corr_jaccard, ...,
+    bedtools_binary = Sys.which("bedtools"), tmpdir = tempdir())
 }
 \arguments{
 
@@ -18,10 +19,12 @@ genomic_regions_correlation(gr_list_1, gr_list_2, background = NULL,
   \item{background}{a \code{\link[GenomicRanges]{GRanges}} object, the genomic background to be restricted in}
   \item{chromosome}{chromosomes}
   \item{species}{species, used for random shuffling genomic regions}
-  \item{nperm}{number of permutations}
+  \item{nperm}{number of permutations. If it is set to 0, no permutation will be performed.}
   \item{mc.cores}{number of cores for parallel calculation}
-  \item{stat_fun}{method to calculate correlations. There are some pre-defined functions: \code{\link{genomicCorr.reldist}}, \code{\link{genomicCorr.absdist}}, \code{\link{genomicCorr.jaccard}}, \code{\link{genomicCorr.nintersect}}, \code{\link{genomicCorr.pintersect}}, \code{\link{genomicCorr.sintersect}}. The self-defined function should accept at least two arguments which are two GRanges object. The third argument is \code{...} which is passed from the main function. The function should only return a numeric value.}
+  \item{stat_fun}{method to calculate correlations. There are some pre-defined functions: \code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}. The self-defined function should accept at least two arguments which are two GRanges object. The third argument is \code{...} which is passed from the main function. The function should only return a numeric value.}
   \item{...}{pass to \code{stat_fun}}
+  \item{bedtools_binary}{file for __bedtools__}
+  \item{tmpdir}{tempoary dir}
 
 }
 \details{
@@ -45,6 +48,9 @@ A list containing:
   \item{stat_random_mean}{mean value of stat in random shuffling}
   \item{stat_random_sd}{standard deviation in random shuffling}
 }
+}
+\seealso{
+\code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}
 }
 \examples{
 # There is no example

@@ -6,7 +6,11 @@ my $level = $ARGV[1];  # gene
 my $primary_key = $ARGV[2];  # gene_id
 my $field = $ARGV[3];  # gene_type
 
-open F, $file or die "cannot open $file\n";
+if($file =~/\.gz$/i) {
+	open F, "gzip -c -d $file |" or die $@;
+} else {
+	open F, $file or die "cannot open $file\n";
+}
 
 my $a;
 my $b;

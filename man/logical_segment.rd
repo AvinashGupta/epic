@@ -1,17 +1,17 @@
 \name{logical_segment}
 \alias{logical_segment}
 \title{
-segment by continuous logical values
+Segmentation by continuous logical values
 }
 \description{
-segment by continuous logical values
+Segmentation by continuous logical values
 }
 \usage{
 logical_segment(l)
 }
 \arguments{
 
-  \item{l}{logical vector}
+  \item{l}{a logical vector}
 
 }
 \details{
@@ -20,10 +20,12 @@ It returns intervals for continuous \code{\link{TRUE}} values
 }
 \value{
 a data frame in which the first column is the index of start sites
-the second column is the index of end sites
+the second column is the index of end sites.
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
-# There is no example
-NULL
-
+l = c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
+logical_segment(l)
 }

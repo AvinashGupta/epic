@@ -21,4 +21,5 @@ enriched_heatmap_list_on_genomic_features(cr, gf, hm_list = NULL, hm_name = NULL
 \examples{
 # There is no example
 NULL
+
 }

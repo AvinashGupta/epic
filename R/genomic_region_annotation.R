@@ -28,11 +28,17 @@
 # -prefix_to_fiveUTR percent of the region which is covered by 5'UTR
 # -prefix_to_threeUTR percent of the region which is covered by 3'UTR
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 annotate_to_gene_models = function(gr, txdb, gene_model =c("tx", "gene"), 
 	species = "hg19", promoters_upstream = 2000, promoters_downstream = 200,
     annotation_type = c("percent", "number"), 
     annotation_prefix = "overlap_to_") {
 	
+	qq.options(LOCAL = TRUE)
+	qq.options(code.pattern = "@\\{CODE\\}")
+
 	gene_model = match.arg(gene_model)[1]
 	message("preparing annotations for different gene regions.")
 	
@@ -132,7 +138,7 @@ annotate_to_gene_models = function(gr, txdb, gene_model =c("tx", "gene"),
 	gr = annotate_to_genomic_features(gr, fiveUTR, "fiveUTR", type = annotation_type, prefix = annotation_prefix)
 	gr = annotate_to_genomic_features(gr, threeUTR, "threeUTR", type = annotation_type, prefix = annotation_prefix)
 	
-	
+	qq.options(LOCAL = FALSE)
 	return2(gr)
 }
 
@@ -141,7 +147,7 @@ annotate_to_gene_models = function(gr, txdb, gene_model =c("tx", "gene"),
 #
 # == param
 # -gr           a `GenomicRanges::GRanges` object
-# -genomic_features a single GRanges object or a list of GRanges objects
+# -genomic_features a single `GenomicRanges::GRanges` object or a list of `GenomicRanges::GRanges` objects
 # -name         names for the genomic features if there is no name in ``genomic_features``
 # -type  How to calculate the values for the annotation.
 #        'number' means numbers of genomic features that each region in ``gr`` overlap; 'percent' means the 
@@ -153,19 +159,36 @@ annotate_to_gene_models = function(gr, txdb, gene_model =c("tx", "gene"),
 # it adds new columns in ``gr`` which tell you how ``gr`` is overlaped by each of ``genomic_features``
 #
 # Note for the annotation strand information is ignored
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# require(circlize)
+# df1 = generateRandomBed(nr = 1000)
+# df2 = generateRandomBed(nr = 1000)
+# df3 = generateRandomBed(nr = 1000)
+# gr1 = GRanges(seqnames = df1[[1]], ranges = IRanges(df1[[2]], df1[[3]]))
+# gr2 = GRanges(seqnames = df2[[1]], ranges = IRanges(df2[[2]], df2[[3]]))
+# gr3 = GRanges(seqnames = df3[[1]], ranges = IRanges(df3[[2]], df3[[3]]))
+# annotate_to_genomic_features(gr1, list(gr2 = gr2, gr3 = gr3))
+# annotate_to_genomic_features(gr1, list(gr2 = gr2, gr3 = gr3), type = "number", prefix = "#")
 annotate_to_genomic_features = function(gr, genomic_features, 
 	name = NULL, type = c("percent", "number"), prefix = "overlap_to_", ...) {
 	
+	op = qq.options()
+	qq.options(code.pattern = "@\\{CODE\\}")
+	on.exit(qq.options(op))
+
 	# check names
 	if(is.null(name)) {
+		name = deparse(substitute(genomic_features))
 		if(inherits(genomic_features, "list")) {
 			if(is.null(names(genomic_features))) {
-				name = paste0("genomic_feature_", seq_along(genomic_features))
+				name = paste0(name, "_", seq_along(genomic_features))
 			} else {
 				name = names(genomic_features)
 			}
-		} else {
-			name = "genomic_feature"
 		}
 	}
 
@@ -215,7 +238,7 @@ annotate_to_genomic_features = function(gr, genomic_features,
 }
 
 # == title
-# For every interval in ``query``, percent that is covered by ``subject``
+# For every interval in ``query``, it calculates the percent that is covered by ``subject``
 #
 # == param
 # -query a `GenomicRanges::GRanges` object
@@ -223,9 +246,18 @@ annotate_to_genomic_features = function(gr, genomic_features,
 # -... pass to `GenomicRanges::findOverlaps`
 #
 # == value
-# a numeric vector in which every element correspond to one interval in ``query``.
+# a numeric vector which is same as the length of ``query``.
 #
 # Be careful with ``strand`` in your `GenomicRanges::GRanges` object!!
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# gr1 = GRanges(seqname = "chr1", ranges = IRanges(start = c(4, 10), end = c(6, 16)))
+# gr2 = GRanges(seqname = "chr1", ranges = IRanges(start = c(7, 13), end = c(8, 20)))
+# percentOverlaps(gr1, gr2)
+# percentOverlaps(gr2, gr1)
 percentOverlaps = function(query, subject, ...) {
 	
     subject = reduce(sort(subject))

@@ -20,7 +20,7 @@ extract_sites(start, end, site, index = TRUE, filter_fun = NULL)
 }
 \details{
 Providing a huge vector of genomic positions, we want to extract subset of sites which
-locate in a specific region. Normally, we will use:
+locate in a specific region (e.g. extract CpG sites in DMRs). Normally, we will use:
 
   \preformatted{
 	site = sort(sample(10000000, 1000000))
@@ -34,7 +34,7 @@ If you want to look for sites in more than one regions (e.g. 1000 regions), in e
 loop, the whole \code{site} vector will be re-scanned again and again which is very time-consuming.
 
 Here we have \code{\link{extract_sites}} function which uses binary search to do subsetting.
-Of course, \code{site} should be sorted non-decreasing in the first place.
+Of course, \code{site} should be sorted non-decreasing beforehand.
 
   \preformatted{
 	subsite = extract_sites(start, end, site, index = FALSE)  }
@@ -76,6 +76,8 @@ is implemented in C-level, and it expects parameter stored in \code{double} mode
 		which(site >= pos[i, 1] & site <= pos[i, 2])
 	\})
 	t1
+  #   user  system elapsed
+  # 29.878   2.904  33.432
 
 	site2 = as.double(site)
 	pos2 = as.double(pos)
@@ -83,10 +85,15 @@ is implemented in C-level, and it expects parameter stored in \code{double} mode
 	t2 = system.time(for(i in 1:1000) \{
 		extract_sites(pos2[i, 1], pos2[i, 2], site2)
 	\})
-	t2  }
+	t2
+  #  user  system elapsed
+  # 1.515   0.783   2.436  }
 }
 \value{
 a vector of positions or index. If there is no sites in the interval, it will return \code{NULL}.
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

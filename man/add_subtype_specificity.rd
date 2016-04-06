@@ -13,6 +13,7 @@ add_subtype_specificity(cr, cutoff = 0.05, suffix = "_ss")
 
   \item{cr}{cr}
   \item{cutoff}{cutoff for ANOVA test}
+  \item{suffix}{suffix}
 
 }
 \details{

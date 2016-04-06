@@ -1,5 +1,5 @@
-\name{genomicCorr.absdist}
-\alias{genomicCorr.absdist}
+\name{genomic_corr_absdist}
+\alias{genomic_corr_absdist}
 \title{
 Absolute distance between two sets of genomic regions
 }
@@ -7,7 +7,7 @@ Absolute distance between two sets of genomic regions
 Absolute distance between two sets of genomic regions
 }
 \usage{
-genomicCorr.absdist(query, reference, method = mean, ...)
+genomic_corr_absdist(query, reference, method = mean, ...)
 }
 \arguments{
 
@@ -24,6 +24,9 @@ for the nearest point in \code{reference}. Assuming the distance vector is \code
 }
 \references{
 Favoriv A, et al. Exploring massive, genome scale datasets with the GenometriCorr package. PLoS Comput Biol. 2012 May; 8(5):e1002529
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

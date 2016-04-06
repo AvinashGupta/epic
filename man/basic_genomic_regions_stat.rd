@@ -34,6 +34,9 @@ For \code{type} settings:
 \value{
 A data frame which contains statistics for each chromosome in each sample.
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

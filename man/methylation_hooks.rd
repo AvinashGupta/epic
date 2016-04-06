@@ -35,6 +35,9 @@ There are following hooks:
 
 Note: positions of CpG sites in a chromosome should be sorted.
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

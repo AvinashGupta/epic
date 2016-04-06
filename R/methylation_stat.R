@@ -14,11 +14,14 @@
 # == detail
 # For each sample id, it will produce five plots:
 #
-# 1. mean/median CpG coverage per chromosome
-# 2. histogram of CpG coverage
-# 3. methylation per chromosome 
-# 4. histogram of methylation
-# 5. mean Methylation for each CpG coverage 
+# - mean/median CpG coverage per chromosome
+# - histogram of CpG coverage
+# - methylation per chromosome 
+# - histogram of methylation
+# - mean Methylation for each CpG coverage 
+#
+# = author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22)) {
 
@@ -150,7 +153,7 @@ wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22)) {
 # -chromosome chromosome
 # -species species
 # -nw number of windows
-# -... pass to `gtrellis::initialize_layout`
+# -... pass to `gtrellis::gtrellis_layout`
 #
 # == details
 # The whole genome is segented by ``nw`` windows and mean methylation and mean CpG coverage
@@ -170,7 +173,7 @@ plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr
 		site = methylation_hooks$site()
 		gr = methylation_hooks$GRanges()
 		chr_len = read.chromInfo(species = species)$chr.len[chr]
-		chr_gr = GRanges(seqname = chr, ranges = IRanges(1, chr_len))
+		chr_gr = GRanges(seqnames = chr, ranges = IRanges(1, chr_len))
 		chr_window = makeWindows(chr_gr, w = w)
 		mtch = as.matrix(findOverlaps(chr_window, gr))
 
@@ -186,12 +189,12 @@ plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr
 			flag = 1
 		}
 
-		add_track(gr2, track = 2, cate = chr, panel.fun = function(gr) {
+		add_track(gr2, track = 2, category = chr, panel.fun = function(gr) {
 			x = (start(gr) + end(gr))/2
 			y = cov
 			grid.points(x, y, pch = ".", gp = gpar(col = "#FF000010"))
 		})
-		add_track(gr2, track = 3, cate = chr, panel.fun = function(gr) {
+		add_track(gr2, track = 3, category = chr, panel.fun = function(gr) {
 			x = (start(gr) + end(gr))/2
 			y = meth
 			grid.points(x, y, pch = ".", gp = gpar(col = col_fun(y)))
@@ -211,7 +214,7 @@ plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr
 # -chromosome chromosome
 # -species species
 # -nw number of windows
-# -... pass to `gtrellis::initialize_layout`
+# -... pass to `gtrellis::gtrellis_layout`
 #
 # == details
 # The whole genome is segented by ``nw`` windows
@@ -239,7 +242,7 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 		site = methylation_hooks$site()
 		gr = methylation_hooks$GRanges()
 		chr_len = read.chromInfo(species = species)$chr.len[chr]
-		chr_gr = GRanges(seqname = chr, ranges = IRanges(1, chr_len))
+		chr_gr = GRanges(seqnames = chr, ranges = IRanges(1, chr_len))
 		chr_window = makeWindows(chr_gr, w = w)
 		mtch = as.matrix(findOverlaps(chr_window, gr))
 
@@ -251,7 +254,7 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 		for(i in seq_along(type)) {
 			sid = sample_id[annotation == type[i]]
 			m = meth[, sid, drop = FALSE]
-			add_track(gr2, track = i+1, cate = chr, panel.fun = function(gr) {
+			add_track(gr2, track = i+1, category = chr, panel.fun = function(gr) {
 				x = (start(gr2) + end(gr2))/2
 				for(i in seq_along(sid)) {
 					y = rep(i, length(x)) + (runif(length(x))-0.5)*0.8
@@ -323,8 +326,8 @@ global_methylation_distribution = function(sample_id, annotation,
 		}
 		
 		nr = length(ind)
-		ind = ind[sample(c(FALSE, TRUE), nr, replace = TRUE, p = c(1-p, p))]
-		qqcat("random sampled @{length(ind)} sites from @{nr} sites on @{chr} (with p = @{p})\n")
+		ind = ind[sample(c(FALSE, TRUE), nr, replace = TRUE, prob = c(1-p, p))]
+		message(qq("random sampled @{length(ind)} sites from @{nr} sites on @{chr} (with p = @{p})\n"))
 		mm = methylation_hooks$meth(row_index = ind, col_index = sample_id)
 		meth_mat = rbind(meth_mat, mm)
 		

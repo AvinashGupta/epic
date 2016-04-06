@@ -18,6 +18,12 @@
 # == value
 # A vector in which 'primary_key' corresponds to the name and 'field' corresponds to the value
 #
+# == seealso
+# `available_gencode_field`
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 extract_field_from_gencode = function(file, level = "gene", primary_key = "gene_id", field = "gene_name") {
 	df = read.table(pipe(qq("perl \"@{system.file(package = 'cotools')}/perl_scripts/extract_field_from_gencode.pl\" @{file} @{level} @{primary_key} @{field}")), 
 		stringsAsFactors = FALSE)
@@ -34,12 +40,17 @@ extract_field_from_gencode = function(file, level = "gene", primary_key = "gene_
 # == details
 # These fields are stored in the 9th column in the gtf file.
 #
+# This function only works under Linux-like OS.
+#
 # == value
 # A vector of available fields
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 available_gencode_field = function(file, level = "gene") {
-	if(grepl("\\.gz$", file)) {
-		line = read.table(pipe(qq("zcat @{file} | awk '$3==\"@{level}\"' | head -n 1")), sep = "\t", stringsAsFactors = FALSE)
+	if(grepl("\\.gz$", file, ignore.case = TRUE)) {
+		line = read.table(pipe(qq("gzip -c -d @{file} | awk '$3==\"@{level}\"' | head -n 1")), sep = "\t", stringsAsFactors = FALSE)
 	} else {
 		line = read.table(pipe(qq("awk '$3==\"@{level}\"' @{file} | head -n 1")), sep = "\t", stringsAsFactors = FALSE)
 	}

@@ -18,11 +18,16 @@ wgbs_qcplot(sample_id, chromosome = paste0("chr", 1:22))
 \details{
 For each sample id, it will produce five plots:
 
-1. mean/median CpG coverage per chromosome
-2. histogram of CpG coverage
-3. methylation per chromosome 
-4. histogram of methylation
-5. mean Methylation for each CpG coverage
+\itemize{
+  \item mean/median CpG coverage per chromosome
+  \item histogram of CpG coverage
+  \item methylation per chromosome 
+  \item histogram of methylation
+  \item mean Methylation for each CpG coverage 
+}
+
+= author
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example
