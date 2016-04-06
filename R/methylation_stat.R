@@ -20,6 +20,9 @@
 # - histogram of methylation
 # - mean Methylation for each CpG coverage 
 #
+# == value
+# A list of corresponding statistics
+#
 # = author
 # Zuguang Gu <z.gu@dkfz.de>
 #
@@ -159,6 +162,9 @@ wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22)) {
 # The whole genome is segented by ``nw`` windows and mean methylation and mean CpG coverage
 # are visualized as two tracks.
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr", 1:22), 
 	species = "hg19", nw = 10000, ...) {
 
@@ -219,6 +225,9 @@ plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr
 # == details
 # The whole genome is segented by ``nw`` windows
 #
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 plot_multiple_samples_methylation_on_genome = function(sample_id, annotation, 
 	chromosome = paste0("chr", 1:22), species = "hg19", nw = 1000, ...) {
 	
@@ -265,23 +274,29 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 	}
 }
 
-.mat_dist = function(mat, anno, col, ha = NULL, title = NULL, ...) {
+# -x a data frame or a list
+.mat_dist = function(x, anno, col, reorder_column = TRUE, ha = NULL, title = NULL, ...) {
 
-	od = order(factor(anno, levels = unique(anno), ordered = TRUE), colMedians(mat, na.rm = TRUE))
-	# mat = mat[, od]
-
+	if(reorder_column) {
+		od = order(factor(anno, levels = unique(anno), ordered = TRUE), sapply(x, median, na.rm = TRUE))
+	} else {
+		od = seq_along(anno)
+	}
 	if(is.null(ha)) ha = HeatmapAnnotation(df = data.frame(type = anno), col = list(type = col))
 
-	densityHeatmap(mat, anno = ha, title = title, column_order = od, ...)
+	densityHeatmap(x, anno = ha, title = title, column_order = od, ...)
 	for(an in sapply(ha@anno_list, function(x) x@name)) {
 		decorate_annotation(an, {
 			grid.text(an, x = unit(-2, "mm"), just = "right")
 		})
 	}
 	## MDS plot
-	loc = cmdscale(dist2(t(mat), pairwise_fun = function(x, y) {l = is.na(x) | is.na(y); x = x[!l]; y = y[!l]; sqrt(sum((x-y)^2))}))
-	plot(loc[, 1], loc[, 2], pch = 16, cex = 1, col = col[anno], main = qq("MDS:@{title}"), xlab = "dimension 1", ylab = "dimension 2")
-	legend("bottomleft", pch = 16, legend = names(col), col = col)
+	if(is.data.frame(x)) {
+		mat = as.matrix(x)
+		loc = cmdscale(dist2(t(mat), pairwise_fun = function(x, y) {l = is.na(x) | is.na(y); x = x[!l]; y = y[!l]; sqrt(sum((x-y)^2))}))
+		plot(loc[, 1], loc[, 2], pch = 16, cex = 1, col = col[anno], main = qq("MDS:@{title}"), xlab = "dimension 1", ylab = "dimension 2")
+		legend("bottomleft", pch = 16, legend = names(col), col = col)
+	}
 }
 
 
@@ -296,66 +311,147 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 # -chromosome chromosomes
 # -by_chr whether make the plot by chromosome
 # -max_cov maximum coverage (used to get rid of extremely high coverage which affect visualization of CpG coverage distribution)
-# -background background to look into
+# -background background to look into. The value can be a single `GenomicRanges::GRanges` object or a list of `GenomicRanges::GRanges` objects.
 # -p probability to randomly sample CpG sites
 #
 # == details
 # It visualize distribution of methylation valus and CpG coverages through heatmaps.
 #
+# == value
+# If ``by_chr`` is set to ``FALSE``, it returns a vector of column order.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 global_methylation_distribution = function(sample_id, annotation, 
 	annotation_color = structure(seq_along(unique(annotation)), names = unique(annotation)),
-	ha = NULL, chromosome = paste0("chr", 1:22), by_chr = FALSE, max_cov = 100,
+	reorder_column = TRUE, ha = NULL, chromosome = paste0("chr", 1:22), by_chr = FALSE, max_cov = 100,
 	background = NULL, p = 0.001) {
 
 	annotation_color = annotation_color[intersect(names(annotation_color), unique(annotation))]
 	
 	###############################################
 	# distribution of global methylation
-	meth_mat = NULL
-	cov_mat = NULL
-	for(chr in chromosome) {
+	if(inherits(background, "list")) {
+		meth_list = NULL
+		cov_list = NULL
 
-		methylation_hooks$set(chr)
-
-		meth_gr = methylation_hooks$GRanges()
-		if(!is.null(background)) {
-			mtch = as.matrix(findOverlaps(meth_gr, background))
-			ind = unique(mtch[, 1])
-		} else {
-			ind = seq_len(length(meth_gr))
+		if(length(background) != length(sample_id)) {
+			stop("Since you specified `background` as a list, the length should be same as `sample_id`.")
 		}
-		
-		nr = length(ind)
-		ind = ind[sample(c(FALSE, TRUE), nr, replace = TRUE, prob = c(1-p, p))]
-		message(qq("random sampled @{length(ind)} sites from @{nr} sites on @{chr} (with p = @{p})\n"))
-		mm = methylation_hooks$meth(row_index = ind, col_index = sample_id)
-		meth_mat = rbind(meth_mat, mm)
-		
-		cm = methylation_hooks$coverage(row_index = ind, col_index = sample_id)
-		cov_mat = rbind(cov_mat, cm)
 
-		if(by_chr) {
-			cm[cm == 0] = NA
-			cm[cm > max_cov] = NA
-			.mat_dist(mm, anno = annotation, col = annotation_color, ha = ha, title = qq("methylation:@{chr}"), range = c(0, 1), ylab = "methylation")
-			.mat_dist(log10(cm), anno = annotation, col = annotation_color, ha = ha, title = qq("coverage:@{chr}"), range = c(0, Inf), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
+		for(chr in chromosome) {
+
+			methylation_hooks$set(chr)
+
+			meth_gr = methylation_hooks$GRanges()
+			ind_list = lapply(seq_along(sample_id), function(i) {
+				mtch = as.matrix(findOverlaps(meth_gr, background[[i]]))
+				ind = unique(mtch[, 1])
+				nr = length(ind)
+				ind = ind[sample(c(FALSE, TRUE), nr, replace = TRUE, prob = c(1-p, p))]
+				message(qq("random sampled @{length(ind)} sites from @{nr} sites on @{chr} in @{sample_id[i]} (with p = @{p})\n"))
+			})
+
+			current_meth_list = lapply(seq_along(ind_list), function(i) {
+				methylation_hooks$meth(row_index = ind_list[[i]], col_index = sample_id[i])[, 1]
+			})
+			current_cov_list = lapply(seq_along(ind_list), function(i) {
+				cov = methylation_hooks$coverage(row_index = ind_list[[i]], col_index = sample_id[i])[, 1]
+				cov[cov == 0] = NA
+				cov[cov > max_cov] = NA
+				log10(cov)
+			})
+			
+			if(by_chr) {
+				.mat_dist(current_meth_list, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = qq("methylation:@{chr}"), range = c(0, 1), ylab = "methylation")
+				.mat_dist(current_cov_list, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = qq("coverage:@{chr}"), range = c(0, log10(max_cov)), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
+			}
+
+			meth_list = lapply(seq_along(meth_list), function(i) {
+				c(meth_list[[i]], current_meth_list[[i]])
+			})
+			cov_list = lapply(seq_along(cov_list), function(i) {
+				c(cov_list[[i]], current_cov_list[[i]])
+			})
+		}
+
+		if(!by_chr) {
+			meth_list = lapply(meth_list, function(meth) {
+				n = length(meth)
+				if(n > 100000) {
+					meth[sample(n, 100000)]
+				}
+			})
+			cov_list = lapply(cov_list, function(cov) {
+				n = length(cov)
+				if(n > 100000) {
+					cov[sample(n, 100000)]
+				}
+			})
+			
+			.mat_dist(meth_list, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = "methylation", range = c(0, 1), ylab = "methylation")
+			.mat_dist(cov_list, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = "coverage", range = c(0, log10(max_cov)), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
+			
+			if(reorder_column) {
+				od = order(factor(anno, levels = unique(anno), ordered = TRUE), sapply(meth_list, median, na.rm = TRUE))
+			} else {
+				od = seq_along(anno)
+			}
+			
+			return(od)
+		}
+	} else {
+		meth_mat = NULL
+		cov_mat = NULL
+		for(chr in chromosome) {
+
+			methylation_hooks$set(chr)
+
+			meth_gr = methylation_hooks$GRanges()
+			if(!is.null(background)) {
+				mtch = as.matrix(findOverlaps(meth_gr, background))
+				ind = unique(mtch[, 1])
+			} else {
+				ind = seq_len(length(meth_gr))
+			}
+			
+			nr = length(ind)
+			ind = ind[sample(c(FALSE, TRUE), nr, replace = TRUE, prob = c(1-p, p))]
+			message(qq("random sampled @{length(ind)} sites from @{nr} sites on @{chr} (with p = @{p})\n"))
+			mm = methylation_hooks$meth(row_index = ind, col_index = sample_id)
+			meth_mat = rbind(meth_mat, mm)
+			
+			cm = methylation_hooks$coverage(row_index = ind, col_index = sample_id)
+			cov_mat = rbind(cov_mat, cm)
+
+			if(by_chr) {
+				cm[cm == 0] = NA
+				cm[cm > max_cov] = NA
+				.mat_dist(mm, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = qq("methylation:@{chr}"), range = c(0, 1), ylab = "methylation")
+				.mat_dist(log10(cm), reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = qq("coverage:@{chr}"), range = c(0, log10(max_cov)), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
+			}
+		}
+
+		if(!by_chr) {
+			nr = nrow(meth_mat)
+			if(nr > 100000) {
+				meth_mat = meth_mat[sample(nr, 100000), ]
+				cov_mat = cov_mat[sample(nr, 100000), ]
+			}
+			cov_mat[cov_mat == 0] = NA
+			cov_mat[cov_mat > max_cov] = NA
+
+			.mat_dist(meth_mat, reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = "methylation", range = c(0, 1), ylab = "methylation")
+			.mat_dist(log10(cov_mat), reorder_column = reorder_column, anno = annotation, col = annotation_color, ha = ha, title = "coverage", range = c(0, log10(max_cov)), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
+			
+			if(reorder_column) {
+				od = order(factor(anno, levels = unique(anno), ordered = TRUE), sapply(meth_mat, median, na.rm = TRUE))
+			} else {
+				od = seq_along(anno)
+			}
+			
+			return(od)
 		}
 	}
-
-	if(!by_chr) {
-		nr = nrow(meth_mat)
-		if(nr > 100000) {
-			meth_mat = meth_mat[sample(nr, 100000), ]
-			cov_mat = cov_mat[sample(nr, 100000), ]
-		}
-		cov_mat[cov_mat == 0] = NA
-		cov_mat[cov_mat > max_cov] = NA
-
-		.mat_dist(meth_mat, anno = annotation, col = annotation_color, ha = ha, title = "methylation", range = c(0, 1), ylab = "methylation")
-		.mat_dist(log10(cov_mat), anno = annotation, col = annotation_color, ha = ha, title = "coverage", range = c(0, Inf), ylab = qq("log10(CpG coverage, 1~@{max_cov})"))
-		
-		od = order(factor(annotation, levels = unique(annotation), ordered = TRUE), colMedians(meth_mat, na.rm = TRUE))
-		return(od)
-	}
-
 }

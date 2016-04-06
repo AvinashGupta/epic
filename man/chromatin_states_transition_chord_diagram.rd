@@ -1,23 +1,29 @@
 \name{chromatin_states_transition_chord_diagram}
 \alias{chromatin_states_transition_chord_diagram}
 \title{
-chord diagram for chromatin states transistion
+Chord diagram for chromatin states transistion
 }
 \description{
-chord diagram for chromatin states transistion
+Chord diagram for chromatin states transistion
 }
 \usage{
-chromatin_states_transition_chord_diagram(mat, max_mat = mat, cate1, cate2, grid.col, ...)
+chromatin_states_transition_chord_diagram(mat, max_mat = mat, remove_unchanged_transition = FALSE,
+    state_col = NULL, ...)
 }
 \arguments{
 
   \item{mat}{the transition matrix}
-  \item{max_mat}{if there are several matrix, set it to the matrix with maximum sum}
-  \item{cate1}{name of row states}
-  \item{cate2}{name fo column states}
-  \item{grid.col}{color for grids}
+  \item{max_mat}{if there are several matrix to be compared, set it to the matrix with maximum sum}
+  \item{remove_unchanged_transition}{whether to remove regions that states are not changed}
+  \item{state_col}{color for grids. It should be a vector of which names correspond to states}
   \item{...}{pass to \code{\link[circlize]{chordDiagram}}}
 
+}
+\details{
+Rows of \code{mat} always locates at the bottom.
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

@@ -4,7 +4,7 @@
 # correlated regions in extended gene model
 #
 # == param
-# -site CpG sites
+# -site CpG sites, a vector
 # -meth methylation matrix corresponding to ``site``
 # -cov coverage
 # -expr expression for current gene
@@ -15,6 +15,9 @@
 # -window_size how many CpG sites in a window
 # -factor subtype
 # -max_width maximum width of a window
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 correlated_regions_per_gene = function(site, meth, cov, expr, chr, cov_cutoff = 3, min_dp = 4,
 	cor_method = "spearman", window_size = 5, factor = NULL, max_width = 10000) {
@@ -116,8 +119,9 @@ correlated_regions_per_gene = function(site, meth, cov, expr, chr, cov_cutoff = 
 # -min_dp minimal non-NA values for calculating correlations
 # -col color for subtypes
 #
-# == detail
-# based on `correlated_regions_per_gene`
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 correlated_regions = function(sample_id, expr, txdb, chr, extend = 50000,
 	cov_filter = function(x) sum(x > 0, na.rm = TRUE) > length(x)/2,
 	cor_method = "spearman", factor = NULL, window_size = 5, max_width = 10000,

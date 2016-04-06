@@ -27,6 +27,12 @@ The function calls external perl script, so you need to have perl installed.
 \value{
 A vector in which 'primary_key' corresponds to the name and 'field' corresponds to the value
 }
+\seealso{
+\code{\link{available_gencode_field}}
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
 # There is no example
 NULL

@@ -17,9 +17,14 @@ available_gencode_field(file, level = "gene")
 }
 \details{
 These fields are stored in the 9th column in the gtf file.
+
+This function only works under Linux-like OS.
 }
 \value{
 A vector of available fields
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example
