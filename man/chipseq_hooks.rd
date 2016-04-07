@@ -24,6 +24,7 @@ by given mark type and sample id:
 \describe{
   \item{sample_id}{how to extract sample ids}
   \item{peak}{how to get peak regions}
+  \item{chromHMM}{how to get chromHMM data}
 }
 }
 \author{

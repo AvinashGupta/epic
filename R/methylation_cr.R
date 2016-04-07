@@ -198,7 +198,7 @@ correlated_regions = function(sample_id, expr, txdb, chr, extend = 50000,
 
 		start = start(genemodel[gi])
 		end = end(genemodel[gi])
-		gm_site_index = extract_sites(start, end, site, index = TRUE)
+		gm_site_index = extract_sites(start, end, site, TRUE)
 		gm_site = site[gm_site_index]
 		gm_meth = meth[gm_site_index, sample_id, drop = FALSE]
 		gm_cov = cov[gm_site_index, sample_id, drop = FALSE]

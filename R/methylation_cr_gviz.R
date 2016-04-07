@@ -56,7 +56,7 @@ cr_gviz = function(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL, tx_li
 
 	site = methylation_hooks$site()
 
-	gm_site_index = extract_sites(gene_start, gene_end, site, index = TRUE)
+	gm_site_index = extract_sites(gene_start, gene_end, site, TRUE)
 	gm_site = site[gm_site_index]
 	gm_meth = methylation_hooks$meth(row_index = gm_site_index, col_index = sample_id)
 	gm_cov = methylation_hooks$coverage(row_index = gm_site_index, col_index = sample_id)

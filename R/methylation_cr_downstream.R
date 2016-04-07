@@ -231,11 +231,11 @@ compare_meth = function(cr, chr, start, end, x = NULL, x2 = NULL) {
 	
 	methylation_hooks$set(chr)
 
-	ind = extract_sites(start, end, methylation_hooks$site())
+	ind = extract_sites(start, end, methylation_hooks$site(), TRUE)
 	meth = methylation_hooks$meth(row_index = ind, col_index = sample_id)
 	raw = methylation_hooks$raw(row_index = ind, col_index = sample_id)
 	cov = methylation_hooks$coverage(row_index = ind, col_index = sample_id)
-	site = extract_sites(start, end, methylation_hooks$site(), index = FALSE)
+	site = extract_sites(start, end, methylation_hooks$site(), FALSE)
 
 	par(mfrow = c(5 + (!is.null(x)) + (!is.null(x2)), 1), mar = c(1, 4, 1, 1))
 

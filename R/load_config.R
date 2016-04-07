@@ -129,6 +129,8 @@ chipseq_hooks() is optional unless you want to do integrative analysis.
 		chr = as.vector(seqnames(genes))
 		names(chr) = names(genes)
 		EXPR = EXPR[chr[rownames(EXPR)] %in% CHROMOSOME, , drop = FALSE]
+	} else {
+		cat("'EXPR' or 'TXDB' is not defined.\n")
 	}
 
 	# initialize the folder structure
@@ -150,30 +152,33 @@ chipseq_hooks() is optional unless you want to do integrative analysis.
 	}
 
 	# validate chipseq data input
-	for(mk in MARKS) {
-		sample_id = chipseq_hooks$sample_id(mk)
-		if(length(sample_id) == 0) {
-			stop(qq("No ChIP-Seq sample detected for mark @{mk}."))
-		}
-		if(length(intersect(rownames(SAMPLE), sample_id)) == 0) {
-			stop(qq("No ChIP-Seq sample in 'SAMPLE' for mark @{mark}."))
-		}
-		if(length(setdiff(sample_id, rownames(SAMPLE)))) {
-			stop(qq("There are ChIP-Seq samples which are not in 'SAMPLE'. Please modify the 'sample_id' hook."))
-		}
-		sid = sample(sample_id, 1)
-		qqcat("random pick one sample: @{sid}\n")
-		peak_list = get_peak_list(mk, sid)
-		for(i in seq_along(peak_list)) {
-			if(length(setdiff(as.character(seqnames(peak_list[[i]])), CHROMOSOME))) {
-				stop(qq("peaks should only contain chromosomes in 'CHROMOSOME', mark @{mk}. Please modify the 'peak' hook."))
+	if(is.null(MARKS)) {
+		cat("'MARKS' is not defined.\n")
+	} else {
+		for(mk in MARKS) {
+			sample_id = chipseq_hooks$sample_id(mk)
+			if(length(sample_id) == 0) {
+				stop(qq("No ChIP-Seq sample detected for mark @{mk}."))
 			}
-			if(!"density" %in% colnames(mcols(peak_list[[i]]))) {
-				stop(qq("Signal of peaks should be in the 'density' column. Please modify the 'peak' hook."))
+			if(length(intersect(rownames(SAMPLE), sample_id)) == 0) {
+				stop(qq("No ChIP-Seq sample in 'SAMPLE' for mark @{mark}."))
+			}
+			if(length(setdiff(sample_id, rownames(SAMPLE)))) {
+				stop(qq("There are ChIP-Seq samples which are not in 'SAMPLE'. Please modify the 'sample_id' hook."))
+			}
+			sid = sample(sample_id, 1)
+			qqcat("random pick one sample: @{sid}\n")
+			peak_list = get_peak_list(mk, sid)
+			for(i in seq_along(peak_list)) {
+				if(length(setdiff(as.character(seqnames(peak_list[[i]])), CHROMOSOME))) {
+					stop(qq("peaks should only contain chromosomes in 'CHROMOSOME', mark @{mk}. Please modify the 'peak' hook."))
+				}
+				if(!"density" %in% colnames(mcols(peak_list[[i]]))) {
+					stop(qq("Signal of peaks should be in the 'density' column. Please modify the 'peak' hook."))
+				}
 			}
 		}
 	}
-
 
 	assign("SAMPLE", SAMPLE, envir = export_env)
 	assign("COLOR", COLOR, envir = export_env)

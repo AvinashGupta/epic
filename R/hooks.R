@@ -86,6 +86,7 @@ methylation_hooks = setGlobalOptions(
 #
 # -sample_id how to extract sample ids
 # -peak how to get peak regions
+# -chromHMM how to get chromHMM data
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -97,7 +98,10 @@ chipseq_hooks = setGlobalOptions(
 		             .validate = function(f) length(as.list(f)) == 2),
 	peak = list(.value = function(mark, sid) stop("you need to define `peak` hook"),
 		        .class = "function",
-		        .validate = function(f) length(as.list(f)) == 3)
+		        .validate = function(f) length(as.list(f)) == 3),
+	chromHMM = list(.value = function(sid) stop("you need to define `chromHMM` hook"),
+		            .class = "function",
+		            .validate = function(f) length(as.list(f)) == 2)
 )
 
 # == title

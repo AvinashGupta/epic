@@ -54,7 +54,10 @@ export(compare_meth)
 export(enriched_heatmap_list_on_tss_cgi)
 export(plot_multiple_samples_methylation_on_genome)
 export(reduce_cr_gap_test)
+export(binary_search)
 export(genomic_corr_nintersect)
+
+
 
 
 
@@ -86,6 +89,8 @@ useDynLib(epic)
 importFrom(Rcpp, sourceCpp)
 import(RColorBrewer)
 importFrom(grDevices, col2rgb, rgb)
+
+
 
 
 

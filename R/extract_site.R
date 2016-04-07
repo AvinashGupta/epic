@@ -1,5 +1,5 @@
 
-# == title
+#  title
 # Extract subset of sites which are in a set of intervals
 #
 # == param
@@ -85,67 +85,95 @@
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-extract_sites = function(start, end, site, index = TRUE, filter_fun = NULL) {
+# extract_sites = function(start, end, site, index = TRUE, filter_fun = NULL) {
 
-	if(!is.double(site)) site = as.double(site)
-	if(!is.double(start)) start = as.double(start)
-	if(!is.double(end)) end = as.double(end)
-	
-	.extract = function(start, end) {
-		n = length(site)
-		
-		# --------o------o---- site
-		# --+--+--------------
-		if(end < site[1]) return(NULL)
-		
-		# --------o------o---- site
-		# -----------------+-+
-		if(start > site[n]) return(NULL)
-		
-		# --------o------o---- site
-		# -----+------------+-
-		if(start <= site[1] & end >= site[n]) return(seq_along(site))
-		
-		if(start <= site[1]) {
-			i1 = 1
-		} else {
-			i1 = .Internal(findInterval(site, start, FALSE, FALSE))
-		}
+# 	i1 = binary_search(site, start, include_left = TRUE, include_right = FALSE)
+# 	i2 = binary_search(site, end, include_left = FALSE, include_right = TRUE)
 
-		if(end >= site[n]) {
-			i2 = n
-		} else {
-			i2 = .Internal(findInterval(site, end, FALSE, FALSE))
-		}
-		
-		# --------o------o---- site
-		# ----------+--+------
-		if(i1 == i2) {
-			if(site[i1] < start && site[i2+1] > end) return(NULL)
-		}
-		
-		if(start > site[1] && site[i1] < start) i1 = i1 + 1
-		return(i1:i2)
-	}
+# 	l = !is.na(i1) & !is.na(l2)
+
+# 	if(sum(l) == 0) {
+# 		return(integer(0))
+# 	}
+
+# 	i1 = i1[l]
+# 	i2 = i2[l]
+
+# 	if(!is.null(filter_fun)) {
+# 		sapply(seq_len(i1))
+# 	}
+
+# 	if(index) {
+# 		unlist()
+# 	}
+
+# 	if(!is.double(site)) site = as.double(site)
+# 	if(!is.double(start)) start = as.double(start)
+# 	if(!is.double(end)) end = as.double(end)
 	
-	id = integer(0)
-	if(is.null(filter_fun)) {
-		for(i in seq_along(start)) {
-			ind = .extract(start[i], end[i])
-			id = c(id, ind)
-		}
-	} else {
-		for(i in seq_along(start)) {
-			ind = .extract(start[i], end[i])
-			if(filter_fun(site[ind])) {
-				id = c(id, ind)
-			}
-		}
-	}
+# 	.extract = function(start, end) {
+# 		n = length(site)
+		
+# 		# --------o------o---- site
+# 		# --+--+--------------
+# 		if(end < site[1]) return(NULL)
+		
+# 		# --------o------o---- site
+# 		# -----------------+-+
+# 		if(start > site[n]) return(NULL)
+		
+# 		# --------o------o---- site
+# 		# -----+------------+-
+# 		if(start <= site[1] & end >= site[n]) return(seq_along(site))
+		
+# 		if(start <= site[1]) {
+# 			i1 = 1
+# 		} else {
+# 			i1 = .Internal(findInterval(site, start, FALSE, FALSE))
+# 		}
+
+# 		if(end >= site[n]) {
+# 			i2 = n
+# 		} else {
+# 			i2 = .Internal(findInterval(site, end, FALSE, FALSE))
+# 		}
+		
+# 		# --------o------o---- site
+# 		# ----------+--+------
+# 		if(i1 == i2) {
+# 			if(site[i1] < start && site[i2+1] > end) return(NULL)
+# 		}
+		
+# 		if(start > site[1] && site[i1] < start) i1 = i1 + 1
+# 		return(i1:i2)
+# 	}
 	
-	if(!index) {
-		return(as.integer(site[id]))
-	} else {
-		return(id)
-	}
-}
+# 	id = integer(0)
+# 	if(is.null(filter_fun)) {
+# 		for(i in seq_along(start)) {
+# 			ind = .extract(start[i], end[i])
+# 			id = c(id, ind)
+# 		}
+# 	} else {
+# 		for(i in seq_along(start)) {
+# 			ind = .extract(start[i], end[i])
+# 			if(filter_fun(site[ind])) {
+# 				id = c(id, ind)
+# 			}
+# 		}
+# 	}
+	
+# 	if(!index) {
+# 		return(as.integer(site[id]))
+# 	} else {
+# 		return(id)
+# 	}
+# }
+
+
+
+
+
+
+
+
