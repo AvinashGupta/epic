@@ -1,4 +1,3 @@
-
 # this script depends on `differential_methylation_in_cgi_and_shore.R`
 
 suppressPackageStartupMessages(library(GetoptLong))

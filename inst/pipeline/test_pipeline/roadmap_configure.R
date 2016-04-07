@@ -14,64 +14,61 @@ methylation_hooks$set = function(chr) {
 
     qqcat("[@{chr}] loading /icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/rds/@{chr}_roadmap_merged.rds\n")
 
-    bs.fit = readRDS(qq("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/rds/@{chr}_roadmap_merged.rds"))
-
-    class(bs.fit) = "bs_fit"
-    attr(bs.fit, "chr") = chr
-
-    methylation_hooks$obj = bs.fit
+    obj = readRDS(qq("/icgc/dkfzlsdf/analysis/B080/guz/roadmap_analysis/roadmap_processed/rds/@{chr}_roadmap_merged.rds"))
+    attr(obj, "chr") = chr
+    methylation_hooks$obj = obj
 
     return(invisible(NULL))
 }
 
-methylation_hooks$meth = function(bs_fit = methylation_hooks$obj, row_index = NULL, col_index = NULL) {
+methylation_hooks$meth = function(obj = methylation_hooks$obj, row_index = NULL, col_index = NULL) {
 
    if(is.null(row_index) && is.null(col_index)) {
-        bs_fit$meth[, , drop = FALSE]
+        obj$meth[, , drop = FALSE]
     } else if(is.null(row_index)) {
-        bs_fit$meth[, col_index, drop = FALSE]
+        obj$meth[, col_index, drop = FALSE]
     } else if(is.null(col_index)) {
-        bs_fit$meth[row_index, , drop = FALSE]
+        obj$meth[row_index, , drop = FALSE]
     } else {
-        bs_fit$meth[row_index, col_index, drop = FALSE]
+        obj$meth[row_index, col_index, drop = FALSE]
     }
 
 }
 
-methylation_hooks$raw = function(bs_fit = methylation_hooks$obj, row_index = NULL, col_index = NULL) {
+methylation_hooks$raw = function(obj = methylation_hooks$obj, row_index = NULL, col_index = NULL) {
 
    if(is.null(row_index) && is.null(col_index)) {
-        bs_fit$meth[, , drop = FALSE]
+        obj$meth[, , drop = FALSE]
     } else if(is.null(row_index)) {
-        bs_fit$meth[, col_index, drop = FALSE]
+        obj$meth[, col_index, drop = FALSE]
     } else if(is.null(col_index)) {
-        bs_fit$meth[row_index, , drop = FALSE]
+        obj$meth[row_index, , drop = FALSE]
     } else {
-        bs_fit$meth[row_index, col_index, drop = FALSE]
+        obj$meth[row_index, col_index, drop = FALSE]
     }
 }
 
-methylation_hooks$site = function(bs_fit = methylation_hooks$obj, index = NULL) {
+methylation_hooks$site = function(obj = methylation_hooks$obj, index = NULL) {
     if(is.null(index))
-        start(bs_fit$gr)
-    else start(bs_fit$gr[index])
+        start(obj$gr)
+    else start(obj$gr[index])
 }
 
-methylation_hooks$GRanges = function(bs_fit = methylation_hooks$obj) {
-    bs_fit$gr
+methylation_hooks$GRanges = function(obj = methylation_hooks$obj) {
+    obj$gr
 }
 
-methylation_hooks$coverage = function(bs_fit = methylation_hooks$obj,
+methylation_hooks$coverage = function(obj = methylation_hooks$obj,
     row_index = NULL, col_index = NULL) {
 
     if(is.null(row_index) && is.null(col_index)) {
-        bs_fit$cov[, , drop = FALSE]
+        obj$cov[, , drop = FALSE]
     } else if(is.null(row_index)) {
-        bs_fit$cov[, col_index, drop = FALSE]
+        obj$cov[, col_index, drop = FALSE]
     } else if(is.null(col_index)) {
-        bs_fit$cov[row_index, , drop = FALSE]
+        obj$cov[row_index, , drop = FALSE]
     } else {
-        bs_fit$cov[row_index, col_index, drop = FALSE]
+        obj$cov[row_index, col_index, drop = FALSE]
     }
 }
 
@@ -83,13 +80,6 @@ rownames(SAMPLE) = sample_id
 COLOR = list(class = c("roadmap" = "red"))
 
 ###########################################################################
-
-# wgbs_qcplot("AK100")
-# plot_coverage_and_methylation_on_genome("AK100", chromosome = c("chr21", "chr22"))
-
-# global_methylation_distribution(SAMPLE$id)
-# global_methylation_distribution(SAMPLE$id, by_chr = TRUE)
-
 gencode_gtf_file = "/icgc/dkfzlsdf/analysis/B080/guz/gencode/gen10.long.gtf"
 
 cat("Loading gencode...\n")
