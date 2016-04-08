@@ -14,9 +14,11 @@ makeGRangesFromDataFrameWithFirstThreeColumns = function(df) {
 	GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]], df[[3]]))
 }
 
-load("/icgc/dkfzlsdf/analysis/B080/guz/hipo16_gbm/RData/PMD_list_volker.RData")
-gr = makeGRangesFromDataFrameWithFirstThreeColumns(PMD_list[[1]])
-load("/icgc/dkfzlsdf/analysis/B080/guz/hipo16_gbm/RData/gr_list_1.RData")
+files = dir("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks/", pattern = "gz$")
+df = read.table(paste0("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks/", files[1]))
+gr = makeGRangesFromDataFrameWithFirstThreeColumns(df)
+
+load("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/gr_list_1.RData")
 genomic_features = lapply(gr_list_1[1:2], makeGRangesFromDataFrameWithFirstThreeColumns)
 
 ###
@@ -30,7 +32,7 @@ annotate_to_genomic_features(gr, genomic_features, prefix = "")
 
 ### build a transcriptDb object
 library(GenomicFeatures)
-txdb = loadDb("/icgc/dkfzlsdf/analysis/B080/guz/gencode/gencode.v17.sqlite")
+txdb = loadDb("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/gen10.long.sqlite")
 
 annotate_to_gene_models(gr, txdb, gene_model = "tx")
 annotate_to_gene_models(gr, txdb, gene_model = "gene")

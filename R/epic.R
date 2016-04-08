@@ -30,7 +30,7 @@ epic = function() {
 	all_cmds = dir(system.file("pipeline", package = "epic"), pattern = "\\.R$")
 	all_cmds = gsub("\\.R$", "", all_cmds)
 	
-	msg = 'Usage: Rscript -e "epic::run()" cmd [options]\n\nAvailable cmd:\n\n'
+	msg = 'Usage: Rscript -e "epic::epic()" cmd [options]\n\nAvailable cmd:\n\n'
 	msg = paste0(msg, qq("  @{all_cmds}\n"))
 
 	x = commandArgs(trailingOnly = TRUE)

@@ -11,9 +11,9 @@ library(epic)
 load_config(config)
 
 
-files = dir(qq("@{OUTPUT_DIR}/rds"), pattern = "^cr_filtered_fdr_.*\.rds$")
+files = dir(qq("@{OUTPUT_DIR}/rds"), pattern = "^cr_filtered_fdr_.*\\.rds$")
 if(length(files) == 1) {
-	cutoff = gsub("^cr_filtered_fdr_(.*)\.rds$", "\\1", files[1])
+	cutoff = gsub("^cr_filtered_fdr_(.*)\\.rds$", "\\1", files[1])
 	cr_filtered = readRDS(files[1])
 } else {
 	cr_filtered = readRDS(qq("@{OUTPUT_DIR}/rds/cr_filtered_fdr_@{cutoff}.rds"))
