@@ -1,5 +1,5 @@
-\name{run}
-\alias{run}
+\name{epic}
+\alias{epic}
 \title{
 run pipeline
 }
@@ -7,11 +7,11 @@ run pipeline
 run pipeline
 }
 \usage{
-run()
+epic()
 }
 \details{
 \preformatted{
- Usage: Rscript -e "epic::run()" cmd [options]
+ Usage: Rscript -e "epic::epic()" cmd [options]
 
  Available cmd:
 
@@ -27,7 +27,7 @@ run()
      general_methylation_distribution
      methylation_subtype_classification_in_cgi_and_shore  }
 
-For each cmd, use \code{\link[Rscript -e "epic]{run()" cmd --help}} to get help
+For each cmd, use \code{Rscript -e "epic::epic()" cmd --help} to get help
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
@@ -35,5 +35,4 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 # There is no example
 NULL
-
 }

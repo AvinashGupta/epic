@@ -30,11 +30,20 @@ test_that("test extract_sites", {
 	expect_that(extract_sites(25, 26, site, FALSE, 0), equals(integer(0)))
 	expect_that(extract_sites(c(1, 9, 15), c(3, 12, 20), site, FALSE, 0), equals(c(2, 9, 10, 15, 20)))
 	for(i in 1:10) {
-		site = sort(sample(10000000, 1000000))
+		site = sort(sample(1000, 100))
 		pos = do.call("rbind", lapply(1:10, function(i) sort(sample(max(site), 2))))
+		ir = IRanges(pos[, 1], pos[, 2])
+		ir_site = IRanges(site, site)
+		mtch = as.matrix(findOverlaps(ir_site, ir))
+		s1 = start(ir_site[unique(mtch[, 1])])
+		s2 = extract_sites(pos[, 1], pos[, 2], site, FALSE, 0)
+		expect_that(s1, equals(s2))
 
-		s1 = site[site >= pos[i, 1] & site <= pos[i, 2]]
-		s2 = extract_sites(pos[i, ], pos[i, 2], site, FALSE, 0)
+		site = sort(sample(1000, 100))
+		ir_site = IRanges(site, site)
+		mtch = as.matrix(findOverlaps(ir_site, ir))
+		s1 = start(ir_site[unique(mtch[, 1])])
+		s2 = extract_sites(pos[, 1], pos[, 2], site, FALSE, 0)
 		expect_that(s1, equals(s2))
 	}
 })
@@ -45,7 +54,7 @@ site = sort(sample(10000000, 1000000))
 pos = do.call("rbind", lapply(1:1000, function(i) sort(sample(max(site), 2))))
 
 system.time(for(i in 1:1000) {
-	unique(site[which(site >= pos[i, 1] & site <= pos[i, 2])])
+	site[site >= pos[i, 1] & site <= pos[i, 2]]
 })
 
 system.time(for(i in 1:1000) {
@@ -54,5 +63,12 @@ system.time(for(i in 1:1000) {
 
 system.time(extract_sites(pos[, 1], pos[, 2], site, FALSE, 0))
 
+ir = IRanges(pos[, 1], pos[, 2])
+ir_site = IRanges(site, site)
+
+system.time({
+	mtch <- as.matrix(findOverlaps(ir_site, ir))
+	s1 <- start(ir_site[unique(mtch[, 1])])
+})		
 
 }

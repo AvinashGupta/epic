@@ -1,5 +1,4 @@
 export(extract_field_from_gencode)
-export(run)
 export(genomic_corr_pintersect)
 export(mb)
 export(reduce2)
@@ -32,6 +31,7 @@ export(common_regions)
 export(annotate_to_genomic_features)
 export(make_transition_matrix_from_chromHMM)
 export(global_methylation_distribution)
+export(epic)
 export(wgbs_qcplot)
 export(cr_gviz)
 export(cr_scatterplot_me)
@@ -67,6 +67,7 @@ export(genomic_corr_nintersect)
 
 
 
+
 import(circlize)
 import(GetoptLong)
 import(parallel)
@@ -92,6 +93,7 @@ useDynLib(epic)
 importFrom(Rcpp, sourceCpp)
 import(RColorBrewer)
 importFrom(grDevices, col2rgb, rgb)
+
 
 
 

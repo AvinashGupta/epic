@@ -70,15 +70,19 @@ IntegerVector binary_search(IntegerVector breaks, IntegerVector search, bool lef
 // [[Rcpp::export]]
 IntegerVector extract_sites(IntegerVector start, IntegerVector end, IntegerVector site, bool return_index, int min_sites) {
 
-	IntegerVector index1 = binary_search(site, start, false);
-	IntegerVector index2 = binary_search(site, end, true);
+	IntegerVector index1 = binary_search(site, start, FALSE);
+	IntegerVector index2 = binary_search(site, end, TRUE);
 
-	int len = 0;
 	int n = index1.size();
-	IntegerVector passed_index(n);
-	int l;
+	int n_site = site.size();
+	IntegerVector passed_index(n_site);
+	int l, i, j;
 
-	for(int i = 0; i < n; i ++) {
+	for(i = 0; i < n_site; i ++) {
+		passed_index[i] = -1;
+	}
+
+	for(i = 0; i < n; i ++) {
 		if(IntegerVector::is_na(index1[i]) || IntegerVector::is_na(index2[i])) {
 			continue;
 		}
@@ -87,35 +91,35 @@ IntegerVector extract_sites(IntegerVector start, IntegerVector end, IntegerVecto
 		}
 
 		l = index2[i] - index1[i] + 1;
-
 		if(l >= min_sites) {
-			len += l;
-			passed_index[i] = i;
+			for(j = index1[i]; j <= index2[i]; j ++) {
+				passed_index[j] = j;
+			}
 		}
 	}
 
-	IntegerVector out(len);
-	if(len == 0) {
-		return out;
+	int n_pass = 0;
+	for(i = 0; i < n_site; i ++) {
+		if(passed_index[i] >= 0) {
+			n_pass ++;
+		}
 	}
+
+	IntegerVector out(n_pass);
 
 	int k = 0;
 	if(return_index) {
-		for(int i = 0; i < n; i ++) {
-			if(!IntegerVector::is_na(passed_index[i])) {
-				for(int j = index1[i]; j <= index2[i]; j ++) {
-					out[k] = j;
-					k ++;
-				}
+		for(i = 0; i < n_site; i ++) {
+			if(passed_index[i] >= 0) {
+				out[k] = i;
+				k ++;
 			}
 		}
 	} else {
-		for(int i = 0; i < n; i ++) {
-			if(!IntegerVector::is_na(passed_index[i])) {
-				for(int j = index1[i]; j <= index2[i]; j ++) {
-					out[k] = site[j];
-					k ++;
-				}
+		for(i = 0; i < n_site; i ++) {
+			if(passed_index[i] >= 0) {
+				out[k] = site[i];
+				k ++;
 			}
 		}
 	}

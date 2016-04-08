@@ -4,7 +4,7 @@
 #
 # == details
 #
-#  Usage: Rscript -e "epic::run()" cmd [options]
+#  Usage: Rscript -e "epic::epic()" cmd [options]
 #
 #  Available cmd:
 #
@@ -20,12 +20,12 @@
 #      general_methylation_distribution
 #      methylation_subtype_classification_in_cgi_and_shore
 #
-# For each cmd, use `Rscript -e "epic::run()" cmd --help` to get help
+# For each cmd, use ``Rscript -e "epic::epic()" cmd --help`` to get help
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-run = function() {
+epic = function() {
 
 	all_cmds = dir(system.file("pipeline", package = "epic"), pattern = "\\.R$")
 	all_cmds = gsub("\\.R$", "", all_cmds)
