@@ -3,20 +3,42 @@
 #
 # == param
 # -gr_list_1 a list of `GenomicRanges::GRanges` objects which contain chromatin states in group 1.
-#            The first column in meta columns should be the states.
-#            please note the start position when converting bed format to ``GRanges`` format (0-based and 1-based).
+#            The first column in meta columns should be the states. Be careful when importing bed files to 
+#            `GenomicRanges::GRanges` objects (start positions in bed files are 0-based while 1-based in ``GRanges`` objects.
 # -gr_list_2 a list of `GenomicRanges::GRanges` objects which contains chromatin states in group 2.
 # -window window size which was used to do chromHMM states prediction. If it is not specified, the greatest common divisor
-#         of all region width is used.
-# -min_1 minimal recurrency in ``gr_list_1``
-# -min_2 minimal recurrency in ``gr_list_2``
+#         of the width of all regions is used.
+# -min_1 If there are multiple samples in group 1, the state assigned to reach region should have recurrency larger or equal to this value.
+# -min_2 same as ``min_1``, but for samples in group 2.
+#
+# == detail
+# The whole genome is segmentated by size of ``window`` and states with highest occurence among samples are assigned to segments.
+#
+# To make the function run successfully, number of segments in all samples should be all the same and there should not be gaps between regions.
 #
 # == value
-# A transition matrix in which values represent width of regions that transite from one state to the other.
+# A transition matrix in which values represent total width of regions that transite from one state to the other. Rows correspond
+# to group 1 and columns correspond to group 2.
+#
+# == seealso
+# The matrix can be sent to `chromatin_states_transition_chord_diagram` to visualize.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# set.seed(123)
+# gr_list_1 = lapply(1:5, function(i) {
+# 	pos = sort(c(0, sample(1:9999, 99), 10000))*200
+# 	GRanges(seqnames = "chr1", ranges = IRanges(pos[-101] + 1, pos[-1]), 
+# 	    states = paste0("state_", sample(1:9, 100, replace = TRUE)))
+# })
+# gr_list_2 = lapply(1:5, function(i) {
+# 	pos = sort(c(0, sample(1:9999, 99), 10000))*200
+# 	GRanges(seqnames = "chr1", ranges = IRanges(pos[-101] + 1, pos[-1]), 
+# 	    states = paste0("state_", sample(1:9, 100, replace = TRUE)))
+# })
+# mat = make_transition_matrix_from_chromHMM(gr_list_1, gr_list_2)
 make_transition_matrix_from_chromHMM = function(gr_list_1, gr_list_2, window = NULL, 
 	min_1 = floor(length(gr_list_1)/2), min_2 = floor(length(gr_list_2)/2)) {
 
@@ -77,6 +99,7 @@ make_transition_matrix_from_chromHMM = function(gr_list_1, gr_list_2, window = N
 	colnames(mat) = all_states[as.numeric(colnames(mat))]
 	mat = mat * as.numeric(window)
 	class(mat) = "matrix"
+	names(dimnames(mat)) = NULL
 	return(mat)
 }
 
@@ -86,23 +109,54 @@ make_transition_matrix_from_chromHMM = function(gr_list_1, gr_list_2, window = N
 # Chord diagram for chromatin states transistion
 #
 # == param
-# -mat the transition matrix
-# -max_mat if there are several matrix to be compared, set it to the matrix with maximum sum
-# -remove_unchanged_transition whether to remove regions that states are not changed
-# -state_col color for grids. It should be a vector of which names correspond to states
-# -legend_position positinos of legends. Possible values are "bottomleft", "bottomright", "topright" and "topleft".
-#             If the value is specified as vector with length two, the legend will be split into two parts.
-#              Set the value to ``NULL`` to suppress legend.
+# -mat the transition matrix. It should be a square matrix in which row names and column names are the same.
+#      If it is not, the function will try to re-format it.
+# -max_mat if there are several transition matrix to be compared, set it to the matrix with maximum absolute and it will make
+#          scales of all matrix the same and comparable.
+# -remove_unchanged_transition whether to remove transitions that states are not changed (set the values in diagonal to 0)
+# -state_col color for states. It should be a vector of which names correspond to states.
+# -legend_position positions of legends. Possible values are "bottomleft", "bottomright", "topright" and "topleft".
+#             If the value is specified as vector with length larger than two, the legend will be split into several parts.
+#              Set the value to ``NULL`` to suppress legends.
 # -... pass to `circlize::chordDiagram`
 #
 # == details
-# Rows of ``mat`` always locates at the bottom.
+# Rows of ``mat`` locate at the bottom of the circle by default.
+#
+# The chord diagram visualizes how much chromatin states change. In the diagram, width of each link represents the total
+# width of regions in a certain chromatin state in group 1 that transite to other chromatin state in group 2. The width of 
+# each grid represents total width of regions in a certain chromatin in group 1 that transite to all states in group 2.
+#
+# Chord diagram is implemented in base graphic system, which means, you can add titles or other graphics by base graphic 
+# functions (e.g. `graphics::title`, `graphics::text`, ...)
+#
+# If you want to adjust order of states in the chord diagram, directly change row and column order of the matrix.
+# 
+# == value
+# No value is returned.
+#
+# == seealso
+# `make_transition_matrix_from_chromHMM` which generates transition matrix from chromHMM results.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-chromatin_states_transition_chord_diagram = function(mat, max_mat = mat, remove_unchanged_transition = TRUE,
-	state_col = NULL, legend_position = NULL, ...) {
+# == example
+# set.seed(123)
+# gr_list_1 = lapply(1:5, function(i) {
+# 	pos = sort(c(0, sample(1:9999, 99), 10000))*200
+# 	GRanges(seqnames = "chr1", ranges = IRanges(pos[-101] + 1, pos[-1]), 
+# 	    states = paste0("state_", sample(1:9, 100, replace = TRUE)))
+# })
+# gr_list_2 = lapply(1:5, function(i) {
+# 	pos = sort(c(0, sample(1:9999, 99), 10000))*200
+# 	GRanges(seqnames = "chr1", ranges = IRanges(pos[-101] + 1, pos[-1]), 
+# 	    states = paste0("state_", sample(1:9, 100, replace = TRUE)))
+# })
+# mat = make_transition_matrix_from_chromHMM(gr_list_1, gr_list_2)
+# chromatin_states_transition_chord_diagram(mat, legend_position = "bottomleft")
+chromatin_states_transition_chord_diagram = function(mat, max_mat = mat, 
+	remove_unchanged_transition = TRUE, state_col = NULL, legend_position = NULL, ...) {
 
 	op = par(no.readonly = TRUE)
 	on.exit(par(op))

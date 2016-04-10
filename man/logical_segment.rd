@@ -1,10 +1,10 @@
 \name{logical_segment}
 \alias{logical_segment}
 \title{
-Segmentation by continuous logical values
+Segmentation by a logical vector
 }
 \description{
-Segmentation by continuous logical values
+Segmentation by a logical vector
 }
 \usage{
 logical_segment(l)
@@ -15,11 +15,11 @@ logical_segment(l)
 
 }
 \details{
-the logical vector will be segmented according to their values.
-It returns intervals for continuous \code{\link{TRUE}} values
+The logical vector will be segmented according to their values.
+It returns intervals for continuous \code{\link{TRUE}} values.
 }
 \value{
-a data frame in which the first column is the index of start sites
+A data frame in which the first column is the index of start sites in the original vector and
 the second column is the index of end sites.
 }
 \author{

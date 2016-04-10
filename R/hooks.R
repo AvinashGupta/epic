@@ -1,7 +1,7 @@
 
 
 # == title
-# Hook functions to extract methylation
+# Hook functions to extract methylation data
 #
 # == param
 # -... Arguments for the parameters, see "details" section
@@ -10,24 +10,30 @@
 # -LOCAL switch local mode
 #
 # == detail
-# Methylation from whole genome bisulfite seuqencing is always huge and it does not
-# make sense to read them all into the memory. This hook sets how to read the methylation
-# data and how to return methylation value (e.g. CpG coverage, methylation rate...)
+# Methylation from whole genome bisulfite sequencing is always huge and it does not
+# make sense to read them all into the memory (imaging there are 20M CpG sites on single strand in human genome). 
+# This hook sets how to read the methylation
+# data and how to return methylation data (e.g. CpG coverage, methylation rate...).
+#
+# All downstream functions which analyze methylation data needs this hook to be already set.
 # 
 # There are following hooks:
 #
 # -set set a chromosome. The function accepts a single chromosome name and 
-#      returns an object which is used as the first argument in other functions
-# -meth how to extract methylation value. The function should have three arguments:
+#      returns an object which is used as the first argument in other hook functions
+# -meth how to extract methylation rate. The function should have three arguments:
 #       the object returned from ``set()``, index of rows and index of columns. Normally,
 #       the first argument (``obj``) can be ignored when calling this hook. Note the methylation
-#       matrix should be column names (used as sample id in other functions)
-# -raw how to extract raw methylation value, same setting as ``meth``
-# -site the function should return a vector of CpG sites
+#       matrix should have column names. The methylation rate should between 0 and 1.
+# -raw how to extract raw methylation value, same setting as ``meth``. This hook is optional.
+# -site the function should return a vector of positions of CpG sites
 # -coverage how to extract CpG coverage, same setting as ``meth``.
 # -GRanges howt to extract CpG sites as a `GenomicRanges::GRanges` object.
 #
 # Note: positions of CpG sites in a chromosome should be sorted.
+#
+# == value
+# Hook functions
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -84,9 +90,13 @@ methylation_hooks = setGlobalOptions(
 # This hook defines how to get sample ids for a specific marks and how to get peak regions
 # by given mark type and sample id:
 #
-# -sample_id how to extract sample ids
-# -peak how to get peak regions
-# -chromHMM how to get chromHMM data
+# -sample_id how to extract sample ids. The argument is the name of the mark and it returns a vector of sample ids.
+# -peak how to get peak regions. The argument is the name of the mark and a single sample id. The function returns a `GenomicRanges::GRanges` object.
+# -chromHMM how to get chromHMM data. The argument is a single sample id and the function returns a `GenomicRanges::GRanges` object. Note
+#           the first column in meta columns should be the chromatin states.
+#
+# == value
+# Hook functions
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -112,7 +122,10 @@ chipseq_hooks = setGlobalOptions(
 # -sample_id a vector of sample ids
 #
 # == details
-# It works after `chipseq_hooks` is set
+# It works after `chipseq_hooks` is set.
+#
+# == value
+# A list of `GenomicRanges::GRanges` objects.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>

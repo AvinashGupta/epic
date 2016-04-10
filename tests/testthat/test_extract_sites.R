@@ -29,6 +29,7 @@ test_that("test extract_sites", {
 	expect_that(extract_sites(20, 25, site, FALSE, 0), equals(c(20)))
 	expect_that(extract_sites(25, 26, site, FALSE, 0), equals(integer(0)))
 	expect_that(extract_sites(c(1, 9, 15), c(3, 12, 20), site, FALSE, 0), equals(c(2, 9, 10, 15, 20)))
+	expect_that(extract_sites(c(1, 3), c(9, 12), site, FALSE, 0), equals(extract_sites(c(1, 7), c(6, 12), site, FALSE, 0)))
 	for(i in 1:10) {
 		site = sort(sample(1000, 100))
 		pos = do.call("rbind", lapply(1:10, function(i) sort(sample(max(site), 2))))

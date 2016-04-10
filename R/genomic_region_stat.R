@@ -8,18 +8,21 @@
 #
 # == param
 # -gr_list a list of `GenomicRanges::GRanges`.
-# -annotation a vector which contains levels of samples, better have names which correspond to the names of ``gr_list``
-# -annotation_color colors corresponding to levels of annotations
+# -annotation a vector which contains class of samples. If it has names which correspond to ``gr_list``, the order of this vector is automatically adjusted.
+# -annotation_color colors corresponding to classes of annotations
 # -main title of the plot
-# -species species, necessary if ``type`` equals to ``proportion``.
+# -species species, necessary if ``type`` is set to ``proportion``.
 # -type type of statistics
-# -by_chr take all chromosomes as a whole or calculate statistics for every chromosome?
+# -by_chr take all chromosomes as a whole or calculate statistics for every chromosome
 #
 # == details
+# The function makes barplot to visualize different statistics in all samples.
+#
 # For ``type`` settings:
 #
-# -proportion proportion of total length of regions compared to the whole genome
-# -number number of regions
+# -proportion proportion of total length of regions compared to the whole genome. It is more unbiased.
+# -number number of regions. Sometimes only looking at the number of regions gives biased estimation of
+#     amount of regions if the width of regions are very viarable.
 # -median_width median width of regions
 #
 # == value
@@ -28,11 +31,33 @@
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# require(circlize)
+# set.seed(123)
+# gr_list = lapply(1:10, function(i) {
+# 	df = generateRandomBed(1000)[1:sample(100:1000, 1), ]
+# 	GRanges(df[[1]], ranges = IRanges(df[[2]], df[[3]]))
+# })
+# basic_genomic_regions_stat(gr_list)
+# basic_genomic_regions_stat(gr_list, annotation = rep(letters[1:2], each = 5), 
+#     annotation_color = c("a" = "red", "b" = "blue"))
+# basic_genomic_regions_stat(gr_list, annotation = rep(letters[1:2], each = 5), 
+#     annotation_color = c("a" = "red", "b" = "blue"), type = "number")
+# basic_genomic_regions_stat(gr_list, annotation = rep(letters[1:2], each = 5), 
+#     annotation_color = c("a" = "red", "b" = "blue"), type = "median_width")
+# basic_genomic_regions_stat(gr_list, annotation = rep(letters[1:2], each = 5), 
+#     annotation_color = c("a" = "red", "b" = "blue"), by_chr = TRUE)
+#
 basic_genomic_regions_stat = function(gr_list, annotation = NULL, annotation_color = NULL, 
 	main = NULL, species = "hg19", type = c("proportion", "number", "median_width"),
 	by_chr = FALSE) {
 
 	type = match.arg(type)[1]
+
+	if(inherits(gr_list, "GRanges")) {
+		gr_list = list(gr_list)
+		names(gr_list) = deparse(substitute(gr))
+	}
 
 	if(is.null(names(gr_list))) {
 		names(gr_list) = seq_along(gr_list)

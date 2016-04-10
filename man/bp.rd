@@ -11,11 +11,19 @@ bp(x)
 }
 \arguments{
 
-  \item{x}{numeric vector. It will be convert to integers by \code{\link[base]{as.integer}}.}
+  \item{x}{a numeric vector. It will be convert to integers by \code{\link[base]{as.integer}}.}
 
 }
+\details{
+It just adds a new \code{bp} class to the vector.
+}
+\value{
+A same vector as input
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
-# There is no example
-NULL
-
+bp(10)
+bp(10.1)
 }

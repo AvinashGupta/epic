@@ -26,7 +26,7 @@ methylation_subtype_classfication = function(gr, n_class, pct_cutoff, corr_cutof
 		od = order(rowVars(mat), decreasing = TRUE)[1:round(nrow(mat)*p)]
 		mat2 = mat[od, ]
 
-		ct_cgi = cor_cols(t(mat2), abs_cutoff = corr, mc = 2)
+		ct_cgi = cor_columns(t(mat2), abs_cutoff = corr, mc = 2)
 
 		ind = which(ct_cgi[, as.character(corr)] >= k)
 		mat2 = mat2[ind, ]

@@ -1,10 +1,10 @@
 \name{percentOverlaps}
 \alias{percentOverlaps}
 \title{
-For every interval in \code{query}, it calculates the percent that is covered by \code{subject}
+Find overlapping genomic regions
 }
 \description{
-For every interval in \code{query}, it calculates the percent that is covered by \code{subject}
+Find overlapping genomic regions
 }
 \usage{
 percentOverlaps(query, subject, ...)
@@ -16,10 +16,13 @@ percentOverlaps(query, subject, ...)
   \item{...}{pass to \code{\link[GenomicRanges]{findOverlaps}}}
 
 }
-\value{
-a numeric vector which is same as the length of \code{query}.
+\details{
+For every interval in \code{query}, it calculates the percent that is covered by \code{subject}.
 
 Be careful with \code{strand} in your \code{\link[GenomicRanges]{GRanges}} object!!
+}
+\value{
+A numeric vector which has the same length as \code{query}.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

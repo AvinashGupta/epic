@@ -27,11 +27,16 @@
 #     df = systemdf("bedtools closest -a `bed1` -b `bed2` | awk '$1==\"chr1\"'")
 #
 # == value
-# A data frame.
+# A data frame. Sometimes column names may be lost.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# if(Sys.info()["sysname"] \%in\% c("Linux", "Darwin")) {
+#     df = data.frame(x = sample(1:10, 10), y = sample(11:20, 10))
+#     systemdf("sort -k1,1n `df`")
+# }
 systemdf = function(cmd, envir = parent.frame(), verbose = FALSE) {
 	
 	op = qq.options(READ.ONLY = FALSE)

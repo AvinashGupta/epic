@@ -149,11 +149,11 @@ wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22)) {
 }
 
 # == title
-# coverage and methylation for one sample
+# Plot coverage and methylation for a single sample
 #
 # == param
 # -sid a single sample id
-# -chromosome chromosome
+# -chromosome chromosomes
 # -species species
 # -nw number of windows
 # -... pass to `gtrellis::gtrellis_layout`
@@ -161,6 +161,9 @@ wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22)) {
 # == details
 # The whole genome is segented by ``nw`` windows and mean methylation and mean CpG coverage
 # are visualized as two tracks.
+#
+# == value
+# No value is returned.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -212,18 +215,21 @@ plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr
 
 
 # == title
-# methylation for more than one samples
+# Plot methylation for multiple samples
 #
 # == param
 # -sample_id a vector of sample ids
 # -annotation annotation of samples (e.g. subtypes)
-# -chromosome chromosome
+# -chromosome chromosomes
 # -species species
 # -nw number of windows
 # -... pass to `gtrellis::gtrellis_layout`
 #
 # == details
-# The whole genome is segented by ``nw`` windows
+# The whole genome is segented by ``nw`` windows.
+#
+# == value
+# No value is returned
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -311,12 +317,12 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 # -ha additional annotation can be specified as a `ComplexHeatmap::HeatmapAnnotation` object
 # -chromosome chromosomes
 # -by_chr whether make the plot by chromosome
-# -max_cov maximum coverage (used to get rid of extremely high coverage which affect visualization of CpG coverage distribution)
+# -max_cov maximum coverage (used to get rid of extremely high coverage which affects visualization of CpG coverage distribution)
 # -background background to look into. The value can be a single `GenomicRanges::GRanges` object or a list of `GenomicRanges::GRanges` objects.
 # -p probability to randomly sample CpG sites
 #
 # == details
-# It visualize distribution of methylation valus and CpG coverages through heatmaps.
+# It visualize distribution of methylation values and CpG coverages through heatmaps.
 #
 # == value
 # If ``by_chr`` is set to ``FALSE``, it returns a vector of column order.
@@ -400,7 +406,7 @@ global_methylation_distribution = function(sample_id, annotation,
 				od = seq_along(annotation)
 			}
 			
-			return(od)
+			return(invisible(od))
 		}
 	} else {
 		meth_mat = NULL
@@ -452,7 +458,7 @@ global_methylation_distribution = function(sample_id, annotation,
 				od = seq_along(annotation)
 			}
 			
-			return(od)
+			return(invisible(od))
 		}
 	}
 }

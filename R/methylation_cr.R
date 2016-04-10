@@ -1,6 +1,6 @@
 
 
-# == title
+# title
 # correlated regions in extended gene model
 #
 # == param
@@ -101,23 +101,59 @@ correlated_regions_per_gene = function(site, meth, cov, expr, chr, cov_cutoff = 
 }
 
 # == title
-# correlated regions
+# Correlation between methylation and expression
 #
 # == param
-# -sample_id sample id
-# -expr expression matrix
-# -txdb ``transcritpDb`` object
-# -chr chromosome
+# -sample_id a vector of sample id
+# -expr expression matrix in which columns correspond to sample ids
+# -txdb a ``GenomicFeatures::GRanges`` object. Gene names should be same type as row names in ``expr``
+# -chr a single chromosome
 # -extend extension of gene model, both upstream and downstream
-# -cov_filter function to filter on coverage
+# -cov_filter if ``coverage`` hook is set in `methylation_hooks`, this option can be set to filter out CpG sites with low coverage across samples.
+#          the value for this option is a function for which the argument is a vector of coverage values for current CpG in all samples.
 # -cor_method method to calculate correlation
-# -factor subtype
-# -window_size how many CpGs in a window
+# -factor classes of samples
+# -window_size number of CpGs in a window
 # -max_width maximum width of a window
-# -raw_meth whether use raw methylation value (unsmoothed)
+# -raw_meth whether use raw methylation value (values from ``raw`` hook set in `methylation_hooks`)
 # -cov_cutoff cutoff for coverage
 # -min_dp minimal non-NA values for calculating correlations
-# -col color for subtypes
+# -col color for classes
+#
+# == details
+# The detection for correlated regions is gene-centric. For every gene, the process are as follows:
+#
+# - extend to both upstream and downstream
+# - from the most upstream, use a sliding window which contains ``windows_size`` CpG sites
+# - filter each window by CpG coverage (by ``cov_filter`` and ``cov_cutoff``)
+# - calculate correlation between methylation and gene expression for this window
+#
+# Following meth columns are attached to the `GenomicRanges::GRanges` objects:
+#
+# -n number of CpG sites
+# -mean_meth_* mean methylation in each window in every sample.
+# -corr correlation
+# -corr_p p-value for the correlation test
+# -meth_IQR IQR of mean methylation if ``factor`` is not set
+# -meth_anova p-value from oneway ANOVA test if ``factor`` is set
+# -meth_diameter range between maximum mean and minimal mean in all subgroups if ``factor`` is set
+# -gene_id gene id
+# -gene_tss_dist distance to tss of genes
+# -tx_tss_dist if genes have multiple transcripts, this is the distance to the nearest transcript
+# -nearest_txx_tss transcript id of the nearest transcript
+#
+# This function keeps all the information for all CpG windows. Users can get `filter_correlated_regions` to get correlated regions
+# with significant correlations and use `reduce_cr` to merge neighbouring windows.
+#
+# Since information for all CpG windows are kept, the size of the object is always very huge, thus, it is reasonable
+# to analyze each chromosome separately and save each object as a single file. Some downstream functions expect a formatted
+# path of the cr file.
+#
+# == value
+# A `GenomicRanges::GRanges` object which contains associated statistics for every CpG windows.
+#
+# == seealso
+# `filter_correlated_regions`, `reduce_cr`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -258,18 +294,44 @@ correlated_regions = function(sample_id, expr, txdb, chr, extend = 50000,
 	return(res)
 }
 
+readRDS = function(file) {
+	if(grepl(file, "\\.rds$", ignore.case = TRUE)) {
+		cr = readRDS(file)
+	} else if(grepl(file, "\\.rdata", ignore.case = TRUE)) {
+		var_name = load(file)
+		eval(parse(text = paste0("cr = ", var_name)))
+	}
+	cr
+}
+
 # == title
-# filter correlation regions
+# Get correlated regions with significant correlations
 # 
 # == param
-# -chromosome chromosomes
-# -template template to find cr files
-# -cutoff cutoff of adjusted p-values
+# -chromosome a vector of chromosome names
+# -template template path to find cr files
+# -cutoff cutoff of adjusted correlation p-values
 # -adj_method method for calculating adjusted p-values
-# -meth_diameter_cutoff cutoff for diameters
+# -meth_diameter_cutoff cutoff for methylation diameters
 # -meth_IQR_cutoff cutoff for IQR, if there is no subtype information, IQR is used to remove less variable methylation
-# -anova_cutoff cutoff for ANOVA test
+# -anova_cutoff cutoff for adjust ANOVA p-values
 #
+# == details
+# As explained in `correlated_regions`, original cr is huge and is always saved as a separated file for single chromosome.
+# Here ``template`` defined how to get the cr files. E.g. if ``template``is defined as "path_to/@{chr}_cr.rds", the funciton
+# will replace "@{chr}" to every chromosome and read the data.
+#
+# Two additional columns are attached:
+#
+# -corr_fdr FDR for correlation p-values
+# -meth_anova_fdr FDR for anova test, will be added only if ``factor`` is set in `correlated_regions`.
+#
+# == value
+# A `GenomicRanges::GRanges` object
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+# 
 filter_correlated_regions = function(chromosome = paste0("chr", 1:22), template, 
 	cutoff = 0.05, adj_method = "BH", meth_diameter_cutoff = 0.25, meth_IQR_cutoff = 0.25,
 	anova_cutoff = 0.05) {
@@ -286,6 +348,7 @@ filter_correlated_regions = function(chromosome = paste0("chr", 1:22), template,
 	for(chr in chromosome) {
 		qqcat("reading cr for @{chr}\n")
 		cr = readRDS(qq(template))
+
 		has_anova = FALSE
 		if("meth_anova" %in% colnames(mcols(cr))) {
 			has_anova = TRUE
@@ -362,10 +425,16 @@ filter_correlated_regions = function(chromosome = paste0("chr", 1:22), template,
 }
 
 # == title
-# plot that helps to choose a gap value
+# Test a proper gap value for cr merging
 #
 # == param
-# -cr correlated regions
+# -cr correlated regions generated by `filter_correlated_regions`
+#
+# == value
+# No value is returned
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 reduce_cr_gap_test = function(cr) {
 	neg_cr = cr[cr$corr < 0]
@@ -400,18 +469,36 @@ reduce_cr_gap_test = function(cr) {
 }
 
 # == title
-# refuce cr regions
+# Merge neighbouring cr regions
 #
 # == param
-# -cr cr 
-# -expr expression
-# -txdb txdb
-# -max_gap maximum gap
-# -gap gap
+# -cr filtered correlated regions from `filter_correlated_regions`
+# -expr the expression matrix which is same as in `correlated_regions`
+# -txdb a ``GenomicFeatures::GRanges`` object.
+# -max_gap maximum gap for merging.
+# -gap gap for merging, a numeric value represents the ratio of width of itself and use `bp`, `kb` or `mb` to represent the number is absoltue base pairs.
+#  Pass to `reduce2`.
 # -mc.cores number of cores
 #
 # == detail
-# pos_CR and neg_CR are reduced separatedly
+# Since cr with positive correlation and negative correlation has different distribution patterns
+# in the genome, i.e. generally, pos_cr are long and CpG density in it is low while neg_cr is short,
+# clustered and has high CpG density, thus, pos cr and neg cr are reduced separatedly.
+#
+# Even only look at e.g. pos cr, the pattern for the distribution in the genome is still different, 
+# thus, we recommend to merge crs by width itself while not by an absolute value for which you can set
+# ``gap`` by a numeric value.
+#
+# Since original regions are merged and columns related to calculation of correlation will be dropped.
+#
+# The merging is applied by gene, so it is still possible that regions associated with gene A overlap to gene B.
+#
+# == value
+# A `GenomicRanges::GRanges` object
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 reduce_cr = function(cr, expr, txdb, max_gap = 1000, gap = 1.0, mc.cores = 1) {
 
 	sample_id = attr(cr, "sample_id")
@@ -495,18 +582,27 @@ reduce_cr = function(cr, expr, txdb, max_gap = 1000, gap = 1.0, mc.cores = 1) {
 }
 
 # == title
-# ad subtype specificity columns
+# Add subtype specificity columns in cr
 #
 # == param
-# -cr cr
-# -cutoff cutoff for ANOVA test
-# -suffix suffix
+# -cr correlated regions generated by `filter_correlated_regions` or `reduce_cr`
+# -cutoff cutoff for p-values of ANOVA test
+# -suffix suffix of column names
 #
 # == details
-# 1 is defined as the methylation is higher than all other subtypes and the difference is significant.
+# If ``factor`` is set in `correlated_regions`, this function can assign subtype specificity to each subtype.
+#
+# We use following digits to represent subtype specificity: 1 is defined as the methylation is higher than all other subtypes and the difference is significant.
 # -1 is defined as the methylation is lower than all other subtypes and the difference is significant.
 # All the others are defined as 0.
-add_subtype_specificity = function(cr, cutoff = 0.05, suffix = "_ss") {
+#
+# == value
+# A `GenomicRanges::GRanges` object
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+cr_add_subtype_specificity = function(cr, cutoff = 0.05, suffix = "_ss") {
 	
 	factor = attr(cr, "factor")
 	if(length(unique(factor)) <= 1) {

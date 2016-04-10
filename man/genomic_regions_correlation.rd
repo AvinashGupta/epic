@@ -23,7 +23,7 @@ genomic_regions_correlation(gr_list_1, gr_list_2, background = NULL,
   \item{mc.cores}{number of cores for parallel calculation}
   \item{stat_fun}{method to calculate correlations. There are some pre-defined functions: \code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}. The self-defined function should accept at least two arguments which are two GRanges object. The third argument is \code{...} which is passed from the main function. The function should only return a numeric value.}
   \item{...}{pass to \code{stat_fun}}
-  \item{bedtools_binary}{file for __bedtools__}
+  \item{bedtools_binary}{file for bedtools}
   \item{tmpdir}{tempoary dir}
 
 }
@@ -35,25 +35,31 @@ The significance of the correlation is calculated by random shuffling the region
 In random shuffling, regions in \code{gr_list_1} will be shuffled. So if you want to shuffle \code{gr_list_2},
 just switch the first two arguments.
 
-Pleast note random shuffling is done by _bedtools_, so _bedtools_ should be installed and exists in \code{PATH}
+Pleast note random shuffling is done by bedtools, so bedtools should be installed and exists in \code{PATH}
 and should support \code{-i -g -incl} options.
 }
 \value{
 A list containing:
 
 \describe{
-  \item{foldChange}{stat/E(stat), stat divided by expected value which is generated from random shuffling}
-  \item{p.value}{p-value for over correlated. So, 1 - p.value is the significance for being no correlation}
   \item{stat}{statistic value}
+  \item{fold_change}{stat/E(stat), stat divided by expected value which is generated from random shuffling}
+  \item{p.value}{p-value for over correlated. So, 1 - p.value is the significance for being less correlated}
   \item{stat_random_mean}{mean value of stat in random shuffling}
   \item{stat_random_sd}{standard deviation in random shuffling}
 }
+
+If \code{perm} is set to 0 or 1, \code{fold_change}, \code{p.value}, \code{stat_random_mean} and \code{stat_random_sd} are all \code{NULL}.
 }
 \seealso{
 \code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}
 }
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
-# There is no example
-NULL
-
+gr1 = GRanges(seqname = "chr1", ranges = IRanges(start = c(4, 10), end = c(6, 16)))
+gr2 = GRanges(seqname = "chr1", ranges = IRanges(start = c(7, 13), end = c(8, 20)))
+genomic_regions_correlation(gr1, gr2, nperm = 0)
+genomic_regions_correlation(list(gr1 = gr1), list(gr2 = gr2), nperm = 0)
 }

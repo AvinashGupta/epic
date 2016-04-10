@@ -16,7 +16,10 @@ get_peak_list(mark, sample_id = chipseq_hooks$sample_id(mark))
 
 }
 \details{
-It works after \code{\link{chipseq_hooks}} is set
+It works after \code{\link{chipseq_hooks}} is set.
+}
+\value{
+A list of \code{\link[GenomicRanges]{GRanges}} objects.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

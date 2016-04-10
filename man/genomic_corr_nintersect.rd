@@ -25,11 +25,17 @@ regions in \code{reference}
 
 Be careful with the \code{strand} in your GRanges object!!
 }
+\value{
+A single correlation value.
+}
+\seealso{
+\code{\link{genomic_regions_correlation}}
+}
 \author{
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
-# There is no example
-NULL
-
+gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+genomic_corr_nintersect(gr1, gr2)
 }

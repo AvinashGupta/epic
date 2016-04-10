@@ -1,10 +1,10 @@
 \name{plot_multiple_samples_methylation_on_genome}
 \alias{plot_multiple_samples_methylation_on_genome}
 \title{
-methylation for more than one samples
+Plot methylation for multiple samples
 }
 \description{
-methylation for more than one samples
+Plot methylation for multiple samples
 }
 \usage{
 plot_multiple_samples_methylation_on_genome(sample_id, annotation,
@@ -14,14 +14,17 @@ plot_multiple_samples_methylation_on_genome(sample_id, annotation,
 
   \item{sample_id}{a vector of sample ids}
   \item{annotation}{annotation of samples (e.g. subtypes)}
-  \item{chromosome}{chromosome}
+  \item{chromosome}{chromosomes}
   \item{species}{species}
   \item{nw}{number of windows}
   \item{...}{pass to \code{\link[gtrellis]{gtrellis_layout}}}
 
 }
 \details{
-The whole genome is segented by \code{nw} windows
+The whole genome is segented by \code{nw} windows.
+}
+\value{
+No value is returned
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

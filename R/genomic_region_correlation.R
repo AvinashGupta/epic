@@ -22,7 +22,7 @@
 #           The third argument is ``...`` which is passed from the main function. The function
 #           should only return a numeric value.
 # -... pass to ``stat_fun``
-# -bedtools_binary file for __bedtools__
+# -bedtools_binary file for bedtools
 # -tmpdir tempoary dir
 #
 # == details
@@ -33,20 +33,31 @@
 # In random shuffling, regions in ``gr_list_1`` will be shuffled. So if you want to shuffle ``gr_list_2``,
 # just switch the first two arguments.
 #
-# Pleast note random shuffling is done by _bedtools_, so _bedtools_ should be installed and exists in ``PATH``
+# Pleast note random shuffling is done by bedtools, so bedtools should be installed and exists in ``PATH``
 # and should support ``-i -g -incl`` options.
 #
 # == value
 # A list containing:
 #
-# -foldChange stat/E(stat), stat divided by expected value which is generated from random shuffling
-# -p.value p-value for over correlated. So, 1 - p.value is the significance for being no correlation
 # -stat statistic value
+# -fold_change stat/E(stat), stat divided by expected value which is generated from random shuffling
+# -p.value p-value for over correlated. So, 1 - p.value is the significance for being less correlated
 # -stat_random_mean mean value of stat in random shuffling
 # -stat_random_sd standard deviation in random shuffling
 #
+# If ``perm`` is set to 0 or 1, ``fold_change``, ``p.value``, ``stat_random_mean`` and ``stat_random_sd`` are all ``NULL``.
+#
 # == seealso
 # `genomic_corr_reldist`, `genomic_corr_jaccard`, `genomic_corr_absdist`, `genomic_corr_nintersect`, `genomic_corr_pintersect`, `genomic_corr_sintersect`
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# gr1 = GRanges(seqname = "chr1", ranges = IRanges(start = c(4, 10), end = c(6, 16)))
+# gr2 = GRanges(seqname = "chr1", ranges = IRanges(start = c(7, 13), end = c(8, 20)))
+# genomic_regions_correlation(gr1, gr2, nperm = 0)
+# genomic_regions_correlation(list(gr1 = gr1), list(gr2 = gr2), nperm = 0)
 #
 genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 	chromosome = paste0("chr", 1:22), species = "hg19",
@@ -212,7 +223,7 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 	}
 
 	res = list(stat = stat,
-		       foldChange = foldChange, 
+		       fold_change = foldChange, 
 		       p.value = p,
 		       stat_random_mean = stat_random_mean,
 		       stat_random_sd = stat_random_sd)
@@ -236,15 +247,22 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 # It is expected that the ratio follows a uniform distribution. So final statisitics are the KS-statistics
 # between the real distribution of rations to the uniform distribution.
 #
-#     ----o*************o----- reference
-#     -----***o--------------- query
-#          ratio = 3/13
-#
 # == reference
 # Favoriv A, et al. Exploring massive, genome scale datasets with the GenometriCorr package. PLoS Comput Biol. 2012 May; 8(5):e1002529
 # 
+# == value
+# A single correlation value.
+#
+# == seealso
+# `genomic_regions_correlation`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+# gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+# genomic_corr_reldist(gr1, gr2)
 #
 genomic_corr_reldist = function(query, reference) {
 	# GRanges for mid-points
@@ -298,9 +316,23 @@ genomic_corr_reldist = function(query, reference) {
 #
 # You can set the background when calculating Jaccard coefficient. For example,
 # if the interest is the Jaccard coefficient between CpG sites in ``query`` and in ``reference``
-# ``background`` can be set with a GRanges object which contains positions of CpG sites.
+# ``background`` can be set with a `GenomicRanges::GRanges` object which contains positions of CpG sites.
 #
 # Be careful with the ``strand`` in your `GenomicRanges::GRanges` object!!
+#
+# == value
+# A single correlation value.
+#
+# == seealso
+# `genomic_regions_correlation`
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+# gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+# genomic_corr_jaccard(gr1, gr2)
 #
 genomic_corr_jaccard = function(query, reference, background = NULL) {
 	if(is.null(background)) {
@@ -333,8 +365,19 @@ genomic_corr_jaccard = function(query, reference, background = NULL) {
 # == reference
 # Favoriv A, et al. Exploring massive, genome scale datasets with the GenometriCorr package. PLoS Comput Biol. 2012 May; 8(5):e1002529
 #
+# == value
+# A single correlation value.
+#
+# == seealso
+# `genomic_regions_correlation`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+# gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+# genomic_corr_absdist(gr1, gr2)
 #
 genomic_corr_absdist = function(query, reference, method = mean, ...) {
 	# GRanges for mid-points
@@ -374,9 +417,19 @@ genomic_corr_absdist = function(query, reference, method = mean, ...) {
 #
 # Be careful with the ``strand`` in your GRanges object!!
 #
+# == value
+# A single correlation value.
+#
+# == seealso
+# `genomic_regions_correlation`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+# gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+# genomic_corr_nintersect(gr1, gr2)
 genomic_corr_nintersect = function(query, reference, ...) {
 	x = countOverlaps(query, reference, ...)
 	res = sum(x > 0)
@@ -398,9 +451,19 @@ genomic_corr_nintersect = function(query, reference, ...) {
 #
 # Be careful with the ``strand`` in your GRanges object!!
 #
+# == value
+# A single correlation value.
+#
+# == seealso
+# `genomic_regions_correlation`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+# gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+# genomic_corr_pintersect(gr1, gr2)
 genomic_corr_pintersect = function(query, reference, ...) {
 	x = percentOverlaps(query, reference, ...)
 	
@@ -422,13 +485,23 @@ genomic_corr_pintersect = function(query, reference, ...) {
 # It calculates the total length of overlapped regions in ``query``.
 #
 # If the interest is e.g. the number of CpG sites both in ``query`` and in ``reference``
-# ``background`` can be set with a GRanges object which contains positions of CpG sites.
+# ``background`` can be set with a `GenomicRanges::GRanges` object which contains positions of CpG sites.
 #
 # Be careful with the ``strand`` in your GRanges object!!
+#
+# == value
+# A single correlation value.
+#
+# == seealso
+# `genomic_regions_correlation`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+# gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+# genomic_corr_sintersect(gr1, gr2)
 genomic_corr_sintersect = function(query, reference, background = NULL) {
 	x = intersect(query, reference)
 	if(!is.null(background)) {

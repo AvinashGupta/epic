@@ -21,12 +21,12 @@ find_neighbours(query, reference, upstream = 1000, downstream = 1000)
 With a certain extension of \code{query}, this funciton looks for \code{reference} which intersects the extended regions.
 }
 \value{
-A \code{\link[GenomicRanges]{GRanges}} object which contains regions in \code{reference} that overlap with extended \code{query}.
+A \code{\link[GenomicRanges]{GRanges}} object which contains regions in \code{query} for which the extended regisons are overlapped with \code{reference}.
 There are three meta columns added:
 
 \describe{
-  \item{distance:}{distance from the \code{reference} to corresponding \code{query}}
-  \item{query_index:}{index of region in \code{query}}
+  \item{distance:}{distance from the \code{query} to corresponding \code{reference}}
+  \item{query_index:}{index of regions in \code{query}}
   \item{reference_index:}{index of regions in \code{reference} }
 }
 

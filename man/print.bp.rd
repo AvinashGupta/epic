@@ -1,10 +1,10 @@
 \name{print.bp}
 \alias{print.bp}
 \title{
-print bp class objects
+Print bp class objects
 }
 \description{
-print bp class objects
+Print bp class objects
 }
 \usage{
 \method{print}{bp}(x, ...)
@@ -14,6 +14,12 @@ print bp class objects
   \item{x}{\code{\link{bp}} class object}
   \item{...}{other arguments}
 
+}
+\value{
+No value is returned.
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

@@ -1,10 +1,10 @@
 \name{annotate_to_genomic_features}
 \alias{annotate_to_genomic_features}
 \title{
-simple annotation to genomic features
+Annotate to genomic features
 }
 \description{
-simple annotation to genomic features
+Annotate to genomic features
 }
 \usage{
 annotate_to_genomic_features(gr, genomic_features,
@@ -15,15 +15,18 @@ annotate_to_genomic_features(gr, genomic_features,
   \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object}
   \item{genomic_features}{a single \code{\link[GenomicRanges]{GRanges}} object or a list of \code{\link[GenomicRanges]{GRanges}} objects}
   \item{name}{names for the genomic features if there is no name in \code{genomic_features}}
-  \item{type}{How to calculate the values for the annotation. 'number' means numbers of genomic features that each region in \code{gr} overlap; 'percent' means the  percent of each region in \code{gr} that is overlapped by genomic features}
+  \item{type}{How to calculate the values for the annotation. \code{number} means numbers of genomic features that each region in \code{gr} overlap; \code{percent} means the  percent of each region in \code{gr} that is overlapped by genomic features}
   \item{prefix}{prefix for names of the annotation columns}
   \item{...}{pass to \code{\link[GenomicRanges]{countOverlaps}} or \code{\link{percentOverlaps}}}
 
 }
 \details{
-it adds new columns in \code{gr} which tell you how \code{gr} is overlaped by each of \code{genomic_features}
+It adds new columns in \code{gr} which tell you how \code{gr} is overlaped by \code{genomic_features}.
 
-Note for the annotation strand information is ignored
+Note for the annotation, strand information is ignored.
+}
+\value{
+A \code{\link[GenomicRanges]{GRanges}} with additional columns of annotations.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

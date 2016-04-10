@@ -5,14 +5,14 @@
 #
 # == param
 # -gr    a `GenomicRanges::GRanges` object
-# -txdb a ``TranscritpDb`` object. At least the object should contain 'gene_id', 'tx_name'.
+# -txdb a `GenomicFeatures::TxDb` object. At least the object should contain 'gene_id', 'tx_name'.
 #       ('gene_id' and 'tx_name' columns are used to identify genes and transcripts)
 # -gene_model type of gene model. By transcripts or by genes
 # -species We need this information to find out proper intergenic regions
 # -promoters_upstream length of upstream promoter from TSS, pass to `GenomicRanges::promoters`
 # -promoters_downstream length of downstream promoter from TSS, pass o `GenomicRanges::promoters`
-# -annotation_type Pass to `annotate_to_genomic_features`
-# -annotation_prefix Pass to `annotate_to_genomic_features`
+# -annotation_type pass to `annotate_to_genomic_features`
+# -annotation_prefix pass to `annotate_to_genomic_features`
 #
 # == value
 # Following columns are attached to ``gr``:
@@ -21,12 +21,12 @@
 # -dist_to_tss distance to the closest tss (depending on ``gene_model``)
 # -nearest_gm the closest gene model (depending on ``gene_model``)
 # -dist_to_gm distance to teh closest gene model (depending on ``gene_model``)
-# -prefix_to_exon percent of the region which is covered by exon
-# -prefix_to_intron percent of the region which is covered by intron
-# -prefix_to_promoter percent of the region which is covered by promoter
-# -prefix_to_intergenic percent of the region which is covered by intergenic regions
-# -prefix_to_fiveUTR percent of the region which is covered by 5'UTR
-# -prefix_to_threeUTR percent of the region which is covered by 3'UTR
+# -'prefix_to'_exon percent of the region which is covered by exons or number of exons overlapped to the region
+# -'prefix_to'_intron percent of the region which is covered by introns or number of introns overlapped to the region
+# -'prefix_to'_promoter percent of the region which is covered by promoters or number of promoters overlapped to the region
+# -'prefix_to'_intergenic percent of the region which is covered by intergenic regions or number of intergenic regions overlapped to the region
+# -'prefix_to'_fiveUTR percent of the region which is covered by 5'UTRs or number of 5'UTRs overlapped to the region
+# -'prefix_to'_threeUTR percent of the region which is covered by 3'UTRs or number of 3'UTRs overlapped to the region
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -143,22 +143,25 @@ annotate_to_gene_models = function(gr, txdb, gene_model =c("tx", "gene"),
 }
 
 # == title
-# simple annotation to genomic features
+# Annotate to genomic features
 #
 # == param
 # -gr           a `GenomicRanges::GRanges` object
 # -genomic_features a single `GenomicRanges::GRanges` object or a list of `GenomicRanges::GRanges` objects
 # -name         names for the genomic features if there is no name in ``genomic_features``
 # -type  How to calculate the values for the annotation.
-#        'number' means numbers of genomic features that each region in ``gr`` overlap; 'percent' means the 
+#        ``number`` means numbers of genomic features that each region in ``gr`` overlap; ``percent`` means the 
 #        percent of each region in ``gr`` that is overlapped by genomic features
 # -prefix prefix for names of the annotation columns
 # -... pass to `GenomicRanges::countOverlaps` or `percentOverlaps`
 #
 # == details
-# it adds new columns in ``gr`` which tell you how ``gr`` is overlaped by each of ``genomic_features``
+# It adds new columns in ``gr`` which tell you how ``gr`` is overlaped by ``genomic_features``.
 #
-# Note for the annotation strand information is ignored
+# Note for the annotation, strand information is ignored.
+#
+# == value
+# A `GenomicRanges::GRanges` with additional columns of annotations.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -238,17 +241,20 @@ annotate_to_genomic_features = function(gr, genomic_features,
 }
 
 # == title
-# For every interval in ``query``, it calculates the percent that is covered by ``subject``
+# Find overlapping genomic regions
 #
 # == param
 # -query a `GenomicRanges::GRanges` object
 # -subject a `GenomicRanges::GRanges` object
 # -... pass to `GenomicRanges::findOverlaps`
 #
-# == value
-# a numeric vector which is same as the length of ``query``.
+# == details
+# For every interval in ``query``, it calculates the percent that is covered by ``subject``.
 #
 # Be careful with ``strand`` in your `GenomicRanges::GRanges` object!!
+#
+# == value
+# A numeric vector which has the same length as ``query``.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>

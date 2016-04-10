@@ -62,11 +62,18 @@ max_mat2 = mat_list[[im]]
 pdf(qq("@{OUTPUT_DIR}/chromatin_states_transitions.pdf", width = 8, height = 8))
 for(i in 1:(nc-1)) {
 	for(j in (i+1):nc) {
-		chromatin_states_transition_chord_diagram(mat, max_mat = max_mat1)
+
+		if(nrow(mat) > 6) {
+			legend_position = c("bottomleft", "bottomright")
+		} else {
+			legend_position = "bottomleft"
+		}
+
+		chromatin_states_transition_chord_diagram(mat, max_mat = max_mat1, remove_unchanged_transition = FALSE, legend_position = legend_position)
 		text(1, -1, all_classes[i], adj = c(1, 0))
 		text(-1, 1, all_classes[j], adj = c(0, 1))
 
-		chromatin_states_transition_chord_diagram(mat, max_mat = max_mat2, remove_unchanged_transition = TRUE)
+		chromatin_states_transition_chord_diagram(mat, max_mat = max_mat2, remove_unchanged_transition = TRUE, legend_position = legend_position)
 		text(1, -1, all_classes[i], adj = c(1, 0))
 		text(-1, 1, all_classes[j], adj = c(0, 1))
 	}

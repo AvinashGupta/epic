@@ -6,37 +6,43 @@
 #
 # == param
 # -breaks a non-decreasing integer vector
-# -search a iteger vector
+# -search an integer vector
 # -left_index whether to use the index of left break or right break
+#
+# == value
+# A vector of index.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# site = c(2, 5, 9, 10, 15, 20)
+# binary_search(site, c(1, 5, 12, 30), FALSE)
+# binary_search(site, c(1, 5, 12, 30), TRUE)
 binary_search = function(breaks, search, left_index = TRUE) {
     .Call('epic_binary_search', PACKAGE = 'epic', breaks, search, left_index) + 1
 }
 
 # == title
-# Extract subset of sites which are in a set of intervals
+# Extract subset of sites in a set of intervals
 #
 # == param
-# -start      start position, a vector
-# -end        end position, a vector. Note there should be no overlap between all ``[start, end]``
-#             (You may use `IRanges::reduce` to merge the overlapping intervals.)
+# -start      start positions, a numeric vector
+# -end        end positions, a numeric vector.
 # -site       positions of all sites, should be sorted.
 # -return_index   whether return the index in the position vector or just the position itself?
-# -min_sites  minimal number of sites in aninterval
+# -min_sites  minimal number of sites in an interval, regions which contain sites less than this value will be filtered out.
 #
 # == details
-# Providing a huge vector of genomic positions, we want to extract subset of sites which
-# locate in a specific region (e.g. extract CpG sites in DMRs). Normally, we will use:
+# Providing a huge vector of genomic positions, we want to extract subset of positions which
+# locate in a specific group of regions (e.g. extract CpG sites in DMRs). Normally, we will use:
 #
 # 	site = sort(sample(10000000, 1000000))
 # 	start = 123456
 # 	end = 654321
 # 	subsite = site[site >= start & site <= end]
 #
-# Unfortunately, in above code, the whole vector ``site`` will be scaned for four times
+# Unfortunately, in above code, the whole vector ``site`` will be scaned four times
 # (``>=``, ``<=``, ``&`` and ``[``).
 # If you want to look for sites in more than one regions (e.g. 1000 regions), in every
 # loop, the whole ``site`` vector will be re-scanned again and again which is very time-consuming.
@@ -44,29 +50,35 @@ binary_search = function(breaks, search, left_index = TRUE) {
 # Here we have `extract_sites` function which uses binary search to do subsetting.
 # Of course, ``site`` should be sorted non-decreasing beforehand.
 #
-# 	subsite = extract_sites(start, end, site, index = FALSE)
+#   subsite = extract_sites(start, end, site, index = FALSE)
 #
-# Not only for single interval, you can also extract sites in a list of genomic regins,
-# by setting ``start`` and ``end`` as a vector.
+# Not only for single interval, you can also extract sites in multiple genomic regins,
+# by setting ``start`` and ``end`` as vectors.
 #
-# 	start = c(123456, 234567, 345678)
-# 	end = c(133456, 244567, 355678)
-# 	subsite = extract_sites(start, end, site)
+#   start = c(123456, 234567, 345678)
+#   end = c(133456, 244567, 355678)
+#   subsite = extract_sites(start, end, site)
 #
 # You can choose to return index only or positions.
 #
-# 	subsite = extract_sites(start, end, site, return_index = FALSE)
-# 	head(subsite)
-# 	subsite_index = extract_sites(start, end, site, return_index = TRUE)
-# 	head(subsite_index)
-# 	head(site[subsite_index])
+#   ubsite = extract_sites(start, end, site, return_index = FALSE)
+#   head(subsite)
+#   subsite_index = extract_sites(start, end, site, return_index = TRUE)
+#   head(subsite_index)
+#   head(site[subsite_index])
+#
+# Regions that include sites less than ``min_site`` will be filtered out.
 #
 # == value
-# a vector of positions or index.
+# A vector of positions or index.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
+# == example
+# site = sort(sample(1000, 100))
+# pos = do.call("rbind", lapply(1:10, function(i) sort(sample(max(site), 2))))
+# extract_sites(pos[, 1], pos[, 2], site)
 extract_sites = function(start, end, site, return_index = FALSE, min_sites = 0) {
     .Call('epic_extract_sites', PACKAGE = 'epic', start, end, site, return_index, min_sites)
 }

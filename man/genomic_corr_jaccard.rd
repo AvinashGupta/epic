@@ -22,12 +22,21 @@ length of union of two sets of genomic regions.
 
 You can set the background when calculating Jaccard coefficient. For example,
 if the interest is the Jaccard coefficient between CpG sites in \code{query} and in \code{reference}
-\code{background} can be set with a GRanges object which contains positions of CpG sites.
+\code{background} can be set with a \code{\link[GenomicRanges]{GRanges}} object which contains positions of CpG sites.
 
 Be careful with the \code{strand} in your \code{\link[GenomicRanges]{GRanges}} object!!
 }
+\value{
+A single correlation value.
+}
+\seealso{
+\code{\link{genomic_regions_correlation}}
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
-# There is no example
-NULL
-
+gr1 = GRanges(seqnames = "chr1", ranges = IRanges(c(1, 5), c(3, 8)))
+gr2 = GRanges(seqnames = "chr1", ranges = IRanges(c(2, 6), c(4, 8)))
+genomic_corr_jaccard(gr1, gr2)
 }

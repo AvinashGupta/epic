@@ -1,16 +1,16 @@
 
 # == title
-# Segmentation by continuous logical values
+# Segmentation by a logical vector
 #
 # == param
 # -l a logical vector
 #
 # == details
-# the logical vector will be segmented according to their values.
-# It returns intervals for continuous `TRUE` values
+# The logical vector will be segmented according to their values.
+# It returns intervals for continuous `TRUE` values.
 #
 # == values
-# a data frame in which the first column is the index of start sites
+# A data frame in which the first column is the index of start sites in the original vector and
 # the second column is the index of end sites.
 #
 # == author
@@ -50,8 +50,20 @@ logical_segment = function(l) {
 # Mark that the numbers represent number of base pairs
 #
 # == param
-# -x numeric vector. It will be convert to integers by `base::as.integer`.
+# -x a numeric vector. It will be convert to integers by `base::as.integer`.
 #
+# == details
+# It just adds a new ``bp`` class to the vector.
+#
+# == value
+# A same vector as input
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# bp(10)
+# bp(10.1)
 bp = function(x) {
 	x = as.integer(x)
 	class(x) = c(class(x), "bp")
@@ -62,8 +74,20 @@ bp = function(x) {
 # Mark that the numbers represent number of kilo bases
 #
 # == param
-# -x numeric vector.
+# -x a numeric vector.
 #
+# == details
+# The input values are multiplied by 1000 and send to `bp`.
+#
+# == value
+# A numeric vector measured in bp
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# kb(10)
+# kb(10.01)
 kb = function(x) {
 	bp(x*1000)
 }
@@ -72,21 +96,38 @@ kb = function(x) {
 # Mark that the numbers represent number of mega bases
 #
 # == param
-# -x numeric vector.
+# -x a numeric vector.
 #
+# == details
+# The input values are multiplied by 1000000 and send to `bp`.
+#
+# == value
+# A numeric vector measured in bp
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# mb(10)
+# mb(10.01)
 mb = function(x) {
 	bp(x*1000000)
 }
 
 # == title
-# print bp class objects
+# Print bp class objects
 #
 # == param
 # -x `bp` class object
 # -... other arguments
 # 
+# == value
+# No value is returned.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 print.bp = function(x, ...) {
-	x = paste0(x, "bp")
+	x = paste0(x, " bp")
 	print(x, quote = FALSE)
 }
 
@@ -97,21 +138,25 @@ print.bp = function(x, ...) {
 # == param
 # -gr a `GenomicRanges::GRanges` object
 # -max_gap maximum gap to merge, measured in base pairs. Only work if ``gap`` is the ratio.
-# -gap a numeric value means to extend each region by ``gap`` times of width before merging. If ``gap`` represents
-#      number of base pairs, use `bp`, `kb` or `mb` to wrap it.
-# -add_n_column whether to add a column which represents number of regions merged.
+# -gap a numeric value means to extend each region by ``gap`` times of its width before merging. If ``gap`` represents
+#      number of base pairs, use `bp`, `kb` or `mb` to wrap it. If ``gap`` represents absolute number of base pairs,
+#      the functionality is same as `GenomicRanges::reduce`.
+# -add_n_column whether to add a column which represents number of regions merged, used internally.
 #
 # == details
-# `GenomicRanges::reduce` only merges regions by gaps with fixed width, but sometimes it is not reasonable to set gap
-# to a same value for all regions. Assume we have a list of differentially methylated regions (DMRs) and we want to reduce
-# the number of DMRs by merging neighouring DMRs. DMRs distribute differently in different areas in genome, i.e. DMRs are dense
-# and short in CpG-dense regions (e.g. CpG islands) while long in CpG-sparse regions (e.g. gene bodies and intergenic regions),
+# `GenomicRanges::reduce` only merges regions with fixed gap width, but sometimes it is not reasonable to set gap
+# to a same width for all regions. Assuming we have a list of differentially methylated regions (DMRs) and we want to reduce
+# the number of DMRs by merging neighouring DMRs. DMRs distribute differently in different places in the genome, e.g. DMRs are dense
+# and short in CpG-rich regions (e.g. CpG islands) while long in CpG-sparse regions (e.g. gene bodies and intergenic regions),
 # thus the merging should be applied based to the width of every DMR itself. `reduce2` can merge regions by the width of every region itself.
-# This type of merging is dynamic that after each merging, width and number of regions change which results in changing of extension
-# of some regions. The whole merging will proceed iteratively unless the gap between regions reach ``max_gap``.
+# This type of merging is dynamic that after each iteration of merging, width and number of regions change which results in changing of extension
+# of some regions. The whole merging will proceed iteratively unless there is no new merging or the gap between regions reaches ``max_gap``.
 #
 # If there are numeric meta columns, corresponding values will be summed up for the merged regions. There will
 # be a new column ``.__n__.`` added which represents number of regions that are merged.
+#
+# == value
+# a `GenomicRanges::GRanges` object.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -140,7 +185,7 @@ reduce2 = function(gr, max_gap = 1000, gap = bp(1000), add_n_column = TRUE) {
 			if(sum(l) == 0) {
 				mcols(gr_reduced) = NULL
 			} else {
-				mat = as.matrix(mt)
+				mat = as.matrix(mt[, l, drop = FALSE])
 				cn = colnames(mat)
 				mat = do.call("rbind", lapply(revmap, function(ind) colSums(mat[ind, , drop = FALSE])))
 				colnames(mat) = cn
@@ -176,7 +221,7 @@ reduce2 = function(gr, max_gap = 1000, gap = bp(1000), add_n_column = TRUE) {
 			if(sum(l) == 0) {
 				mcols(gr_reduced) = NULL
 			} else {
-				mat = as.matrix(mt)
+				mat = as.matrix(mt[, l, drop = FALSE])
 				cn = colnames(mat)
 				mat = do.call("rbind", lapply(revmap, function(ind) colSums(mat[ind, , drop = FALSE])))
 				colnames(mat) = cn
