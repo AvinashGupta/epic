@@ -41,4 +41,5 @@ download.file("ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/genco
 extract_field_from_gencode("gencode.v19.annotation.gtf.gz")
 extract_field_from_gencode("gencode.v19.annotation.gtf.gz", field = "gene_type")
 }
+NULL
 }

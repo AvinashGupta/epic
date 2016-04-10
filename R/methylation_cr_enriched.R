@@ -1,10 +1,21 @@
 
 # == title
-# enrichment of cr on tss
+# Enrichment of cr around tss
 #
 # == param
-# -cr cr
-# -txdb txdb
+# -cr filtered correlated regions from `filter_correlated_regions`
+# -txdb a ``GenomicFeatures::GRanges`` object.
+#
+# == details
+# It visualizes how neg cr and pos cr are distributed within c(-10kb, 20kb) of gene tss.
+# Also the distribution of transcript will also be added. Values on y-axis represent
+# how many crs/transcripts cover each position relative to the tss.
+#
+# == values
+# No value is returned.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 cr_enriched_at_tss = function(cr, txdb) {
 	
@@ -79,20 +90,38 @@ cr_enriched_at_tss = function(cr, txdb) {
 }
 
 # == title
-# Enriched heatmap
+# Enriched heatmaps to visualize how signals are enriched at genes
 # 
 # == param
-# -cr cr
-# -cgi CpG Island
-# -txdb txdb
-# -expr expr
-# -hm_list a list of histome marks
-# -hm_name names for hm
-# -on tss or body
-# -by gene or tx
-# -hm_cor_p_cutoff cutoff for the correlation between hm and expression
-# -show_expr whether show heatmap of expression
-# -... pass to
+# -cr filtered correlated regions from `filter_correlated_regions`
+# -cgi a `GenomicRanges::GRanges` object which contains CpG islands
+# -txdb a ``GenomicFeatures::GRanges`` object.
+# -expr the expression matrix which is same as in `correlated_regions`
+# -hm_list a list of ChIP-Seq peaks
+# -hm_name names for the peaks
+# -on where the signals are enriched in, possible values are ``tss`` and ``body``
+# -by if ``on`` is set to ``tss``, whether it is tss of ``gene`` or ``tx``
+# -hm_cor_p_cutoff cutoff for the correlation between peak intensity and gene expression
+# -show_expr whether show heatmap of gene expression
+# -... pass to `EnrichedHeatmap::draw,EnrichedHeatmapList-method`
+#
+# == details
+# Following signals are visualized around gene/tx tss or gene bodies:
+#
+# - correlated regions (positive correlated regions and negative correlated regions can be subsetted by ``corr`` column in the object)
+# - correlation between peak intensity and gene expression
+# - overlapping with CpG islands
+# - length of genes
+# - relative gene expression
+# - expression level
+# - mean intensity of peaks in each subgroup
+# - mean methylation in each subgroup
+#
+# == value
+# No value is returned.
+#
+# == author
+# Zuguang Gu <z.gu@dfkz.de>
 #
 enriched_heatmap_list_on_gene = function(cr, cgi, txdb, expr, hm_list = NULL, hm_name = NULL, on = "tss", by = "gene", 
 	hm_cor_p_cutoff = 0.05, show_expr = TRUE, ...) {
@@ -270,17 +299,33 @@ enriched_heatmap_list_on_gene = function(cr, cgi, txdb, expr, hm_list = NULL, hm
 
 
 # == title
-# Enriched heatmap on TSS-CGI
+# Enriched heatmaps to visualize how signals are at enriched CpG islands
 #
 # == param
-# -cr cr
-# -cgi CpG Islands
-# -txdb txdb
-# -expr expr
-# -hm_list hm_list
-# -hm_name hm_name
-# -by by
-# -... pass to
+# -cr filtered correlated regions from `filter_correlated_regions`
+# -cgi a `GenomicRanges::GRanges` object which contains CpG islands
+# -txdb a ``GenomicFeatures::GRanges`` object.
+# -expr the expression matrix which is same as in `correlated_regions`
+# -hm_list a list of ChIP-Seq peaks
+# -hm_name names for the peaks
+# -by by ``gene`` or ``tx``
+# -... pass to `EnrichedHeatmap::draw,EnrichedHeatmapList-method`
+#
+# == details
+# Following signals are visualized around CpG islands which are close to gene/ts tss:
+#
+# - correlated regions (positive correlated regions and negative correlated regions can be subsetted by ``corr`` column in the object)
+# - width of CpG islands
+# - strand of associated tss
+# - number of tss in the extended area
+# - mean intensity of peaks in each subgroup
+# - mean methylation in each subgroup
+#
+# == value
+# No value is returned.
+#
+# == author
+# Zuguang Gu <z.gu@dfkz.de>
 #
 enriched_heatmap_list_on_tss_cgi = function(cr, cgi, txdb, expr, hm_list = NULL, hm_name = NULL, by = "gene", ...) {
 
@@ -406,14 +451,28 @@ enriched_heatmap_list_on_tss_cgi = function(cr, cgi, txdb, expr, hm_list = NULL,
 }
 
 # == title
-# Enriched heatmap on a certain gf
+# Enriched heatmaps to visualize how signals are enriched at a certain genomic feature
 #
 # == param
-# -cr cr
-# -gf genomic features
-# -hm_list hm_list
-# -hm_name hm_name
-# -... pass to
+# -cr filtered correlated regions from `filter_correlated_regions`
+# -gf genomic features, e.g. TFBS or enhancers, a `GenomicRanges::GRanges` object
+# -hm_list a list of ChIP-Seq peaks
+# -hm_name names for the peaks
+# -... pass to `EnrichedHeatmap::draw,EnrichedHeatmapList-method`
+#
+# == details
+# Following signals are visualized around specified genomic features:
+#
+# - correlated regions (positive correlated regions and negative correlated regions can be subsetted by ``corr`` column in the object)
+# - width of genomic features
+# - mean intensity of peaks in each subgroup
+# - mean methylation in each subgroup
+#
+# == value
+# No value is returned.
+#
+# == author
+# Zuguang Gu <z.gu@dfkz.de>
 #
 enriched_heatmap_list_on_genomic_features = function(cr, gf, hm_list = NULL, hm_name = NULL, ...) {
 
@@ -450,7 +509,7 @@ enriched_heatmap_list_on_genomic_features = function(cr, gf, hm_list = NULL, hm_
 	ht_list = EnrichedHeatmap(mat3, col = c("white", cr_col), cluster_rows = TRUE, show_row_dend = FALSE,
 	                top_annotation = HeatmapAnnotation(lines1 = anno_enriched()), 
 	                top_annotation_height = unit(2, "cm"), column_title = qq("@{cr_name} ~ gf"), axis_name = c("-5kb", "start", "end", "5kb"))
-
+	ht_list = ht_list + rowAnnotation(gf_width = row_anno_barplot(gf_width, axis = TRUE), width = unit(1, "cm"))
 
 	if(length(hm_list) > 0) {
 		hist_mat_list = enrich_with_histone_mark(gf2, hm_list, sample_id, factor)

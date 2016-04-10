@@ -37,4 +37,5 @@ Zuguang Gu <z.gu@dkfz.de>
 mat = matrix(rnorm(100000 * 10), ncol = 100000, nrow = 20)
 cor_columns(mat)
 }
+NULL
 }

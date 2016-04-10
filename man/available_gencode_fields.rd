@@ -31,4 +31,5 @@ download.file("ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/genco
 available_gencode_fields("gencode.v19.annotation.gtf.gz", level = "gene")
 available_gencode_fields("gencode.v19.annotation.gtf.gz", level = "transcript")
 }
+NULL
 }

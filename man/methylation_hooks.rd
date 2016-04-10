@@ -45,6 +45,7 @@ Hook functions
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
+NULL
 \dontrun{
 # following are examples of setting `methylation_hooks`
 methylation_hooks$set = function(chr) {

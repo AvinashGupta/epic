@@ -2,15 +2,15 @@
 
 
 # == title
-# Heatmap for mean methylation in genomic features
+# Heatmap for differential methylation in genomic features
 #
 # == param
-# -gr object returned by `get_mean_methylation_in_genomic_features`
+# -gr a `GenomicRanges::GRanges` object returned by `get_mean_methylation_in_genomic_features`
 # -annotation subtype of samples
 # -annotation_color colors of subtypes
 # -txdb A `GenomicFeatures::TxDb` object
 # -gf_list a list of genomic features which are used as row annotations
-# -gf_type how to overlap genomic features
+# -gf_type how to overlap genomic features, pass to `annotate_to_genomic_features`
 # -min_mean_range minimal range between mean value in subtypes
 # -cutoff if subtype information is provided, p-value for the oneway ANOVA test
 # -adj_method how to calculate adjusted p-values
@@ -19,15 +19,23 @@
 # -ha column annotations added to the heatmap
 # -... pass to `ComplexHeatmap::Heatmap`
 # 
+# == value
+# A `GenomicRanges::GRanges` object which only contains regions with significant differential methylation.
+# 
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 heatmap_diff_methylation_in_genomic_features = function(gr, annotation, 
 	annotation_color = structure(seq_along(unique(annotation)), names = unique(annotation)), 
 	txdb = NULL, gf_list = NULL, gf_type = "percent", 
 	min_mean_range = 0.2, cutoff = 0.05, adj_method = "BH", title = NULL, 
 	cluster_cols = c("subgroup", "all", "none"), ha = NULL, ...) {
 	
-	# if(length(annotation) != ncol(mcols(gr))) {
-	# 	stop("Length of `annotation` should be equal to ncol of `mcols(gr)`\n")
-	# }
+	if(is.null(attr(gr, "generated_by"))) {
+		stop("`gr` should come from `get_mean_methylation_in_genomic_features()`.\n")
+	} else if(attr(gr, "generated_by") != "get_mean_methylation_in_genomic_features") {
+		stop("`gr` should come from `get_mean_methylation_in_genomic_features()`.\n")
+	}
 	
 	cluster_cols = match.arg(cluster_cols)[1]
 
@@ -160,7 +168,7 @@ heatmap_diff_methylation_in_genomic_features = function(gr, annotation,
 
 
 # == title
-# Calculate mean methylation value in a list of regions
+# Calculate mean methylation value in a list of genomic features
 #
 # == param
 # -sample_id  a vector of sample IDs
@@ -173,7 +181,11 @@ heatmap_diff_methylation_in_genomic_features = function(gr, annotation,
 #             The object sent to this function is a vector of positions for CpGs that locate in the current region.
 #
 # == value
-# a list of ``GRanges`` objects in which mean methylation matrix are attached.
+# A list of `GenomicRanges::GRanges` objects in which mean methylation matrix are attached.
+# The variable can be sent to `heatmap_diff_methylation_in_genomic_features` to visualize.
+#
+# = author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 get_mean_methylation_in_genomic_features = function(sample_id, gf_list, average = TRUE, p = 0.001,
 	chromosome = paste0("chr", 1:22),
@@ -221,6 +233,8 @@ get_mean_methylation_in_genomic_features = function(sample_id, gf_list, average 
 			gr_list[[i]] = c(gr_list[[i]], gr)
 		}
 	}
+
+	attr(gr_list, "generated_by") = "get_mean_methylation_in_genomic_features"
 
 	return2(gr_list)
 }

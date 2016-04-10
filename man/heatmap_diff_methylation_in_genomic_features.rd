@@ -1,10 +1,10 @@
 \name{heatmap_diff_methylation_in_genomic_features}
 \alias{heatmap_diff_methylation_in_genomic_features}
 \title{
-Heatmap for mean methylation in genomic features
+Heatmap for differential methylation in genomic features
 }
 \description{
-Heatmap for mean methylation in genomic features
+Heatmap for differential methylation in genomic features
 }
 \usage{
 heatmap_diff_methylation_in_genomic_features(gr, annotation,
@@ -15,12 +15,12 @@ heatmap_diff_methylation_in_genomic_features(gr, annotation,
 }
 \arguments{
 
-  \item{gr}{object returned by \code{\link{get_mean_methylation_in_genomic_features}}}
+  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object returned by \code{\link{get_mean_methylation_in_genomic_features}}}
   \item{annotation}{subtype of samples}
   \item{annotation_color}{colors of subtypes}
   \item{txdb}{A \code{\link[GenomicFeatures]{TxDb}} object}
   \item{gf_list}{a list of genomic features which are used as row annotations}
-  \item{gf_type}{how to overlap genomic features}
+  \item{gf_type}{how to overlap genomic features, pass to \code{\link{annotate_to_genomic_features}}}
   \item{min_mean_range}{minimal range between mean value in subtypes}
   \item{cutoff}{if subtype information is provided, p-value for the oneway ANOVA test}
   \item{adj_method}{how to calculate adjusted p-values}
@@ -29,6 +29,12 @@ heatmap_diff_methylation_in_genomic_features(gr, annotation,
   \item{ha}{column annotations added to the heatmap}
   \item{...}{pass to \code{\link[ComplexHeatmap]{Heatmap}}}
 
+}
+\value{
+A \code{\link[GenomicRanges]{GRanges}} object which only contains regions with significant differential methylation.
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

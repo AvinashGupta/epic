@@ -1,10 +1,10 @@
 \name{scatterplot_with_boxplot}
 \alias{scatterplot_with_boxplot}
 \title{
-scatterplot with boxplots on both sides
+Scatterplot with boxplots on both sides
 }
 \description{
-scatterplot with boxplots on both sides
+Scatterplot with boxplots on both sides
 }
 \usage{
 scatterplot_with_boxplot(x, y, annotation = rep("unknown", length(x)),
@@ -13,17 +13,26 @@ scatterplot_with_boxplot(x, y, annotation = rep("unknown", length(x)),
 }
 \arguments{
 
-  \item{x}{x}
-  \item{y}{y}
-  \item{annotation}{annotations}
+  \item{x}{values on x-axis}
+  \item{y}{values on y-axis}
+  \item{annotation}{annotations which show groups of data points}
   \item{annotation_color}{colors for annotation}
   \item{main}{title for the plot}
-  \item{xlab}{xlab}
-  \item{ylab}{ylab}
-  \item{xlim}{xlim}
-  \item{ylim}{ylim}
-  \item{text_list}{additional text}
+  \item{xlab}{labels on x-axis}
+  \item{ylab}{labels on y-axis}
+  \item{xlim}{range on x-axis}
+  \item{ylim}{range on y-axis}
+  \item{text_list}{additional text which is a named vector or list (if the text is mixed with character and numbers)}
 
+}
+\details{
+On the left and bottom, there are boxplots and on the top right, there is the scatter plot.
+}
+\value{
+No value is returned
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

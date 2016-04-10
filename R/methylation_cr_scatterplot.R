@@ -1,10 +1,10 @@
 
 # == title
-# Scatter plot between methylation and expression
+# Scatter plot between methylation and expression in a correlated region
 #
 # == param
-# -cr correlated regions from `correlated_regions`
-# -expr expression matrix which was used to detect ``cr``
+# -cr correlated regions from `correlated_regions` or `filter_correlated_regions`
+# -expr the expression matrix which is same as in `correlated_regions`
 # -gi gene id
 # -text_column which column in ``cr`` should be put as annotation text in the plot
 # -xlab xlab in the plot
@@ -12,6 +12,12 @@
 #
 # == details
 # Scatterplot for all CRs corresponding to the gene will be made.
+#
+# == value
+# No value is returned
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 cr_scatterplot_me = function(cr, expr, gi = NULL, text_column = NULL,
 	xlab = "Methylation", ylab = "Expression") {
@@ -50,19 +56,28 @@ cr_scatterplot_me = function(cr, expr, gi = NULL, text_column = NULL,
 }
 
 # == title
-# scatterplot with boxplots on both sides
+# Scatterplot with boxplots on both sides
 #
 # == param
-# -x x
-# -y y
-# -annotation annotations
+# -x values on x-axis
+# -y values on y-axis
+# -annotation annotations which show groups of data points
 # -annotation_color colors for annotation
 # -main title for the plot
-# -xlab xlab
-# -ylab ylab
-# -xlim xlim
-# -ylim ylim
-# -text_list additional text
+# -xlab labels on x-axis
+# -ylab labels on y-axis
+# -xlim range on x-axis
+# -ylim range on y-axis
+# -text_list additional text which is a named vector or list (if the text is mixed with character and numbers)
+#
+# == details
+# On the left and bottom, there are boxplots and on the top right, there is the scatter plot.
+#
+# == value
+# No value is returned
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 scatterplot_with_boxplot = function(x, y, annotation = rep("unknown", length(x)), 
 	annotation_color = structure(seq_along(levels(annotation)), names = levels(annotation)),

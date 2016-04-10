@@ -1,10 +1,10 @@
 \name{get_mean_methylation_in_genomic_features}
 \alias{get_mean_methylation_in_genomic_features}
 \title{
-Calculate mean methylation value in a list of regions
+Calculate mean methylation value in a list of genomic features
 }
 \description{
-Calculate mean methylation value in a list of regions
+Calculate mean methylation value in a list of genomic features
 }
 \usage{
 get_mean_methylation_in_genomic_features(sample_id, gf_list, average = TRUE, p = 0.001,
@@ -22,7 +22,11 @@ get_mean_methylation_in_genomic_features(sample_id, gf_list, average = TRUE, p =
 
 }
 \value{
-a list of \code{GRanges} objects in which mean methylation matrix are attached.
+A list of \code{\link[GenomicRanges]{GRanges}} objects in which mean methylation matrix are attached.
+The variable can be sent to \code{\link{heatmap_diff_methylation_in_genomic_features}} to visualize.
+
+= author
+Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # There is no example

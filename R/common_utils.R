@@ -87,7 +87,8 @@ set_counter = function(n, fmt = "%s") {
 			cat(str)
 			if(i == n) cat("\n")
 
-			i <<- i + 1
+			i = i + 1
+			assign("i", i, envir = parent.env())
 			return(invisible(i))
 		}
 	}
@@ -247,6 +248,7 @@ set_proper_seqlengths = function(gr, species) {
 # mat = matrix(rnorm(100000 * 10), ncol = 100000, nrow = 20)
 # cor_columns(mat)
 # }
+# NULL
 cor_columns = function (x, abs_cutoff = 0.5, size = 1000, mc = 1, ...) {
     
     split_by_block = function(n, size) {

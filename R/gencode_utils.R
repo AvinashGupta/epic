@@ -31,6 +31,7 @@
 # extract_field_from_gencode("gencode.v19.annotation.gtf.gz")
 # extract_field_from_gencode("gencode.v19.annotation.gtf.gz", field = "gene_type")
 # }
+# NULL
 extract_field_from_gencode = function(file, level = "gene", 
 	primary_key = "gene_id", field = "gene_name") {
 	df = read.table(pipe(qq("perl \"@{system.file(package = 'epic')}/perl_scripts/extract_field_from_gencode.pl\" @{file} @{level} @{primary_key} @{field}")), 
@@ -61,6 +62,7 @@ extract_field_from_gencode = function(file, level = "gene",
 # available_gencode_fields("gencode.v19.annotation.gtf.gz", level = "gene")
 # available_gencode_fields("gencode.v19.annotation.gtf.gz", level = "transcript")
 # }
+# NULL
 available_gencode_fields = function(file, level = "gene") {
 	con = file(file, "r")
 	while(1) {
