@@ -87,7 +87,7 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 	}
 
 	if(nperm > 1) {
-		if(file.exists(bedtools_binary)) {
+		if(!file.exists(bedtools_binary)) {
 			stop("Cannot find binary file for bedtools.")
 		}
 	}
