@@ -2,24 +2,6 @@
 # this file contains functions that wraps functions with same name in other pacakges
 ######################################################################################
 
-getChromInfoFromUCSC = function(species) {
-	dir = tempdir()
-
-	op = qq.options(READ.ONLY = FALSE)
-	qq.options(code.pattern = "@\\{CODE\\}")
-
-	filename = qq("@{species}_getChromInfoFromUCSC")
-	if(file.exists(qq("@{dir}/@{filename}"))) {
-		df = read.table(qq("@{dir}/@{filename}"), sep = "\t", header = TRUE, stringsAsFactors = FALSE)
-	} else {
-		suppressMessages(df <- GenomicFeatures::getChromInfoFromUCSC(species))
-		write.table(df, file = qq("@{dir}/@{filename}"), sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-	}
-	
-	qq.options(op)
-
-	return(df)
-}
 
 return2 = function(expr, invisible = FALSE) {
 	env = parent.frame()
