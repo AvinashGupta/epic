@@ -7,7 +7,7 @@ Customized Gviz plot for a gene model
 Customized Gviz plot for a gene model
 }
 \usage{
-cr_gviz(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL, tx_list = NULL,
+cr_gviz(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL,
     species = "hg19", gf_list = NULL, hm_list = NULL, symbol = NULL)
 }
 \arguments{
@@ -18,7 +18,6 @@ cr_gviz(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL, tx_list = NULL,
   \item{txdb}{a \code{GenomicFeatures::GRanges} object.}
   \item{gene_start}{start position of gene}
   \item{gene_end}{end position of the gene}
-  \item{tx_list}{a vector of transcript ids which belong to the gene}
   \item{species}{species}
   \item{gf_list}{a list of \code{\link[GenomicRanges]{GRanges}} objects which contains additional annotations}
   \item{hm_list}{a list of \code{\link[GenomicRanges]{GRanges}}}

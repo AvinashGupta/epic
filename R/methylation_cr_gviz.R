@@ -9,7 +9,6 @@
 # -txdb a ``GenomicFeatures::GRanges`` object.
 # -gene_start start position of gene
 # -gene_end end position of the gene
-# -tx_list a vector of transcript ids which belong to the gene
 # -species species
 # -gf_list a list of `GenomicRanges::GRanges` objects which contains additional annotations
 # -hm_list a list of `GenomicRanges::GRanges`
@@ -32,7 +31,7 @@
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-cr_gviz = function(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL, tx_list = NULL,
+cr_gviz = function(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL, 
 	species = "hg19", gf_list = NULL, hm_list = NULL, symbol = NULL) {
 
 	sample_id = attr(cr, "sample_id")
@@ -96,11 +95,13 @@ cr_gviz = function(cr, gi, expr, txdb, gene_start = NULL, gene_end = NULL, tx_li
 	trackList = pushTrackList(trackList, GenomeAxisTrack())
 	trackList = pushTrackList(trackList, IdeogramTrack(genome = species, chromosome = chr))
 	grtrack = GeneRegionTrack(txdb, chromosome = chr, start = gene_start, end = gene_end, name="Gene\nmodel", showId = TRUE, rotate.title = TRUE)
-	if(!is.null(tx_list)) {
-		sg = symbol(grtrack)
-		sg[sg %in% tx_list] = paste0("[", sg[sg %in% tx_list], "]")
-		symbol(grtrack) = sg
-	}
+	
+	tx_list = transcriptsBy(txdb, by = "gene")
+	tx_list = tx_list[[gi]]$tx_name
+	sg = symbol(grtrack)
+	sg[sg %in% tx_list] = paste0("[", sg[sg %in% tx_list], "]")
+	symbol(grtrack) = sg
+	
 	trackList = pushTrackList(trackList, grtrack)
 
 	## correlation track
