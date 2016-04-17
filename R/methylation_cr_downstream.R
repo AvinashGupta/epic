@@ -18,7 +18,7 @@ cr_qc = function(chromosome = paste0("chr", 1:22), template) {
 	for(k in seq_along(chromosome)) {
 	    chr = chromosome[k]
 	    qqcat("reading @{chr}...\n")
-	    cr = readRDS(qq(template))
+	    cr = readRDS_or_readRData(qq(template))
 	    
 	    l = cr$corr > 0; l[is.na(l)] = FALSE
 	    pos_cr = cr[l]
@@ -211,7 +211,7 @@ cr_hilbert = function(cr, template, txdb, chromosome = paste0("chr", 1:22), merg
 			cr = GRanges()
 			for(i in seq_along(chromosome)) {
 				chr = chromosome[i]
-				cr = c(cr, readRDS(qq(template)))
+				cr = c(cr, readRDS_or_readRData(qq(template)))
 			}
 			cr = cr[!is.na(cr$corr)]
 			hc = GenomicHilbertCurve(chr = chromosome, mode = "pixel", level = 10, title = "cr for all chromosomes", legend = lgd)
@@ -224,7 +224,7 @@ cr_hilbert = function(cr, template, txdb, chromosome = paste0("chr", 1:22), merg
 			for(i in seq_along(chromosome)) {
 			    chr = chromosome[i]
 			    cat(chr, "\n")
-			    cr = readRDS(qq(template))
+			    cr = readRDS_or_readRData(qq(template))
 			    cr = cr[!is.na(cr$corr)]
 			    # pushViewport(viewport(layout.pos.row = ceiling(i/6), layout.pos.col = i - (ceiling(i/6)-1)*6))
 			    hc = HilbertCurve(s = 1, e = max(chr_len), mode = "pixel", level = 10, title = chr, legend = lgd)

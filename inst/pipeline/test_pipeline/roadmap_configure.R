@@ -3,22 +3,12 @@
 
 ############################################################
 #
-methylation_hooks$set = function(chr) {
-
-    if(!is.null(methylation_hooks$obj)) {
-        if(attr(methylation_hooks$obj, "chr") == chr) {
-            qqcat("[@{chr}] @{chr} is already set.\n")
-            return(invisible(NULL))
-        }
-    }
+methylation_hooks$get_data = function(chr) {
 
     qqcat("[@{chr}] loading /icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/methylation/@{chr}_roadmap_merged.rds\n")
 
     obj = readRDS(qq("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/methylation/@{chr}_roadmap_merged.rds"))
-    attr(obj, "chr") = chr
-    methylation_hooks$obj = obj
-
-    return(invisible(NULL))
+    return(obj)
 }
 
 methylation_hooks$meth = function(obj = methylation_hooks$obj, row_index = NULL, col_index = NULL) {
@@ -79,27 +69,31 @@ SAMPLE = data.frame(id = sample_id, class = rep("roadmap", length(sample_id)), s
 rownames(SAMPLE) = sample_id
 COLOR = list(class = c("roadmap" = "red"))
 
-###########################################################################
-gencode_gtf_file = "/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/gen10.long.gtf"
 
 cat("Loading gencode...\n")
 load("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/gen10_long_transcript_merged.RData")
 map = structure(names(gene_annotation$gtf), names = gsub("\\.\\d+$", "", names(gene_annotation$gtf)))
 
-
 cat("load expression...\n")
 expression = list()
-expression$count = as.matrix(read.table("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/57epigenomes.N.pc.gz", row.names = 1, header = TRUE))
-expression$rpkm = as.matrix(read.table("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/57epigenomes.RPKM.pc.gz", row.names = 1, header = TRUE))
-rownames(expression$count) = map[rownames(expression$count)]
-rownames(expression$rpkm) = map[rownames(expression$rpkm)]
+count = as.matrix(read.table("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/57epigenomes.N.pc.gz", row.names = 1, header = TRUE))
+rpkm = as.matrix(read.table("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/57epigenomes.RPKM.pc.gz", row.names = 1, header = TRUE))
+rownames(count) = map[rownames(count)]
+rownames(rpkm) = map[rownames(rpkm)]
+count = count[, intersect(colnames(count), sample_id), drop = FALSE]
+rpkm = rpkm[, intersect(colnames(rpkm), sample_id), drop = FALSE]
+
+l = apply(count, 1, function(x) sum(x > 0) > length(x)/2)
+expr = rpkm[l, , drop = FALSE]
+EXPR = log2(expr + 1)
+
 
 cat("load txdb...\n")
 TXDB = loadDb("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/gen10.long.sqlite")
+GTF_FILE = "/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/gen10.long.gtf"
 
-gt = extract_field_from_gencode(gencode_gtf_file, level = "gene", primary_key = "gene_id", field = "gene_type")
-gt = gt[gt == "protein_coding"]
-EXPR = expression$rpkm[intersect(rownames(expression$rpkm), names(gt)), ]
+GENE_TYPE = "protein_coding"
+
 
 CHROMOSOME = paste0("chr", c(1:22))
 
@@ -121,30 +115,20 @@ GENOMIC_FEATURE_LIST = c(
     repeats_SINE           = qq("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/bed/repeats_SINE.bed"),
     tfbs                   = qq("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/bed/encode_uniform_tfbs_merged_1kb.bed")        # too large for memory
 )
-cat("loading genomic features...\n")
-GENOMIC_FEATURE_LIST = lapply(GENOMIC_FEATURE_LIST, function(x) {
-    qqcat("reading @{x} as GRanges object...\n")
-    df = read.table(x, sep = "\t", stringsAsFactors = FALSE)
-    df = df[df[[1]] %in% CHROMOSOME, , drop = FALSE]
-    makeGRangesFromDataFrame(df[1:3],
-                seqnames.field = "V1",
-                start.field = "V2",
-                end.field = "V3")
-})
 
-
-MARKS = c("H3K4me3", "H3K4me1")
+con = pipe("ls /icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks/*.narrowPeak.gz")
+MARKS = scan(con, what = "character"); close(con)
+MARKS = gsub("^.*E\\d+-(.*?)\\.narrowPeak\\.gz$", "\\1", MARKS)
+MARKS = sort(unique(MARKS))
 
 chipseq_hooks$sample_id = function(mark) {
     sample_id = dir("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks", pattern = qq("E\\d+-@{mark}.narrowPeak.gz"))
     sample_id = gsub(qq("-@{mark}.narrowPeak.gz"), "", sample_id)
-    intersect(sample_id, rownames(SAMPLE))
 }
 
 chipseq_hooks$peak = function(mark, sid) {
-    qqcat("reading peaks: @{sid}, @{mark}")
+    qqcat("reading peaks: @{sid}, @{mark}\n")
     df = read.table(qq("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks/@{sid}-@{mark}.narrowPeak.gz"), stringsAsFactors = FALSE)
-    gr = GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]]+1, df[[3]]), density = df[[5]])
-    gr[seqnames(gr) %in% CHROMOSOME]
+    GRanges(seqnames = df[[1]], ranges = IRanges(df[[2]]+1, df[[3]]), density = df[[5]])
 }
 

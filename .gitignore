@@ -12,3 +12,6 @@
 
 .DS_Store
 ^\..*
+
+inst/pipeline/test_pipeline/*.R
+

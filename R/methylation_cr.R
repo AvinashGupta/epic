@@ -294,10 +294,10 @@ correlated_regions = function(sample_id, expr, txdb, chr, extend = 50000,
 	return(res)
 }
 
-readRDS = function(file) {
-	if(grepl(file, "\\.rds$", ignore.case = TRUE)) {
-		cr = readRDS(file)
-	} else if(grepl(file, "\\.rdata", ignore.case = TRUE)) {
+readRDS_or_readRData = function(file) {
+	if(grepl("\\.rds$", file, ignore.case = TRUE)) {
+		cr = readRDS_or_readRData(file)
+	} else if(grepl("\\.rdata", file, ignore.case = TRUE)) {
 		var_name = load(file)
 		eval(parse(text = paste0("cr = ", var_name)))
 	}
@@ -347,7 +347,7 @@ filter_correlated_regions = function(chromosome = paste0("chr", 1:22), template,
 	corr = NULL
 	for(chr in chromosome) {
 		qqcat("reading cr for @{chr}\n")
-		cr = readRDS(qq(template))
+		cr = readRDS_or_readRData(qq(template))
 
 		has_anova = FALSE
 		if("meth_anova" %in% colnames(mcols(cr))) {
@@ -391,7 +391,7 @@ filter_correlated_regions = function(chromosome = paste0("chr", 1:22), template,
 	cr2 = GRanges()
 	for(chr in chromosome) {
 		qqcat("reading cr for @{chr}\n")
-		cr = readRDS(qq(template))
+		cr = readRDS_or_readRData(qq(template))
 
 		if(has_anova) {
 			cr = cr[(!is.na(cr$corr)) & (!is.na(cr$corr_p)) & (!is.na(cr$meth_anova)) & (!is.na(cr$meth_diameter))]

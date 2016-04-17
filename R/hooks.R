@@ -40,7 +40,8 @@
 #
 methylation_hooks = function(..., RESET = FALSE, READ.ONLY = NULL, LOCAL = FALSE) {}
 methylation_hooks = setGlobalOptions(
-	set = list(.value = function(chr) stop("you need to define `set`"),
+	set = list(.value = NULL, .class = "function"),
+	get_data = list(.value = function(chr) stop("you need to define `get_data`"),
 	                             .class = "function",
 	                             .validate = function(f) {
 	                             	length(as.list(args(f))) == 2
@@ -70,8 +71,28 @@ methylation_hooks = setGlobalOptions(
 	                             .validate = function(f) {
 	                             	length(as.list(args(f))) == 2
 	                             	}),
-	obj = NULL
+	obj = NULL,
+	sample_id = list(.value = NULL, .class = "character")
 )
+
+methylation_hooks$set = function(chr) {
+
+    if(!is.null(methylation_hooks$obj)) {
+        if(attr(methylation_hooks$obj, "chr") == chr) {
+            qqcat("[@{chr}] @{chr} is already set.\n")
+            return(invisible(NULL))
+        }
+    }
+    
+    obj = methylation_hooks$get_data(chr)
+    attr(obj, "chr") = chr
+
+    methylation_hooks$obj = obj
+
+    methylation_hooks$sample_id = colnames(methylation_hooks$meth())
+
+    return(invisible(NULL))
+}
 
 # .obj_is_set = function() {
 # 	!is.null(methylation_hooks$obj)

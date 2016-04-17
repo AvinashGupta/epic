@@ -5,7 +5,7 @@
 # == details
 # There are some R scripts which can be run directly. The path of all scripts can be obtained by 
 # 
-#    dir(system.file("pipeline", package = "epic"), pattern = "\\.R$")
+#    dir(system.file("pipeline", "script", package = "epic"), pattern = "\\.R$")
 #
 # You can either directly run these R scripts by:
 #
@@ -74,6 +74,6 @@ epic = function() {
 	# cmd = qq("\"@{R_binary}\" --vanilla --slave --args @{paste(x[-1], collapse=' ')} < \"@{system.file('pipeline', package = 'epic')}/@{x[1]}.R\"")
 	# cat(cmd, "\n")
 
-	GetoptLong:::source(qq("@{system.file('pipeline', package = 'epic')}/@{x[1]}.R"), argv = paste(x[-1], collapse=' '))
+	GetoptLong:::source(qq("@{system.file('pipeline', 'script', package = 'epic')}/@{x[1]}.R"), argv = paste(x[-1], collapse=' '))
 
 }
