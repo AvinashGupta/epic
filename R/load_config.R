@@ -61,6 +61,7 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 	EXPR = NULL
 	CHROMOSOME = NULL
 	GENOME = NULL
+	GENE_TYPE = NULL
 	OUTPUT_DIR = NULL
 	GENOMIC_FEATURE_LIST = NULL
 	MARKS = NULL
