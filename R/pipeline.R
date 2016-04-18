@@ -4,11 +4,12 @@
 # run pipeline through qsub system
 #
 # == param
-# -config_file path of configuration script
+# -config_file path of configuration script, check `load_config` for all configurations.
 # -prefix prefix of the job name
-# -email email
-# -enforce enforce run all the steps
+# -email email address if you want to be notified of your jobs
+# -enforce enforce to run all the steps even for those successfully finished jobs.
 # -Rscript_binary path of Rscript binary
+# -submit_by which job scheduling you are using
 #
 # == details
 # Automatically run 
@@ -16,7 +17,7 @@
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FALSE, Rscript_binary = "Rscript") {
+run_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE, Rscript_binary = "Rscript", submit_by = "qsub") {
 
 	OUTPUT_DIR = NULL
 	SAMPLE = NULL
@@ -28,6 +29,7 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 	load_config(config_file, validate = FALSE)
 
 	tmpdir = paste0(OUTPUT_DIR, "/temp")
+	dir.create(tmpdir, showWarnings = FALSE)
 
 	if(length(unique(SAMPLE$class)) > 1) {
 		x = pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_cgi_and_shore --config '@{config_file}'"), 
@@ -42,7 +44,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 			nodes = 1,
 			email = email,
 			enforce = enforce,
-			tmpdir = tmpdir)
+			tmpdir = tmpdir,
+			submit_by = submit_by)
 
 		pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_genomic_features --config '@{config_file}'"),
 			output = c(qq("@{OUTPUT_DIR}/heatmap_diff_methylation_in_genomic_features.pdf")),
@@ -52,7 +55,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 			nodes = 1,
 			email = email,
 			enforce = enforce,
-			tmpdir = tmpdir)
+			tmpdir = tmpdir,
+			submit_by = submit_by)
 
 		pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' methylation_subtype_classification_in_cgi_and_shore --config '@{config_file}'"),
 			output = c(qq("@{OUTPUT_DIR}/methylation_classification_wgbs_cgi.pdf"),
@@ -65,7 +69,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 			email = email,
 			enforce = enforce,
 			dependency = x,
-			tmpdir = tmpdir)
+			tmpdir = tmpdir,
+			submit_by = submit_by)
 	} else {
 		pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' methylation_subtype_classification_in_cgi_and_shore --config '@{config_file}'"),
 			output = c(qq("@{OUTPUT_DIR}/methylation_classification_wgbs_cgi.pdf"),
@@ -80,7 +85,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 			nodes = 1,
 			email = email,
 			enforce = enforce,
-			tmpdir = tmpdir)
+			tmpdir = tmpdir,
+			submit_by = submit_by)
 	}
 
 	pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' general_methylation_distribution --config '@{config_file}'"),
@@ -94,7 +100,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 		nodes = 1,
 		email = email,
 		enforce = enforce,
-		tmpdir = tmpdir)
+		tmpdir = tmpdir,
+		submit_by = submit_by)
 
 	#####################################
 	### CR
@@ -114,10 +121,10 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 			nodes = 1,
 			email = email,
 			enforce = enforce,
-			tmpdir = tmpdir)
+			tmpdir = tmpdir,
+			submit_by = submit_by)
 		dependency = c(dependency, x)
 	}
-	dependency = paste(dependency, collapse = ",")
 
 	pid_cr_filter = pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_filter --config '@{config_file}'"),
 		output = qq("@{OUTPUT_FOLDER}/rds/cr_filtered_fdr_@{cutoff}.rds"),
@@ -128,7 +135,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 		email = email,
 		enforce = enforce,
 		dependency = dependency,
-		tmpdir = tmpdir)
+		tmpdir = tmpdir,
+		submit_by = submit_by)
 
 	pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_reduce --config '@{config_file}'"),
 		output = qq("@{OUTPUT_DIR}/rds/cr_reduced_fdr_@{cutoff}.rds"),
@@ -139,7 +147,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 		email = email,
 		enforce = enforce,
 		dependency = pid_cr_filter,
-		tmpdir = tmpdir)
+		tmpdir = tmpdir,
+		submit_by = submit_by)
 
 	pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_downstream --config '@{config_file}'"),
 		output = c(qq("@{OUTPUT_DIR}/cr_number.pdf"),
@@ -154,7 +163,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 		email = email,
 		enforce = enforce,
 		dependency = pid_cr_filter,
-		tmpdir = tmpdir)
+		tmpdir = tmpdir,
+		submit_by = submit_by)
 
 	for(chr in CHROMOSOME) {
 		pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_gviz --config '@{config_file}' --chr @{chr}"),
@@ -166,7 +176,8 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 			email = email,
 			enforce = enforce,
 			dependency = pid_cr_filter,
-			tmpdir = tmpdir)
+			tmpdir = tmpdir,
+			submit_by = submit_by)
 	}
 
 	if(is.null(MARKS)) {
@@ -184,14 +195,15 @@ pipeline_by_qsub = function(config_file, prefix = "", email = NULL, enforce = FA
 				email = email,
 				enforce = enforce,
 				dependency = pid_cr_filter,
-				tmpdir = tmpdir)
+				tmpdir = tmpdir,
+				submit_by = submit_by)
 		}
 	}
 }
 
 
 pipeline_step = function(..., output = NULL, name, walltime = "1:00:00", mem = "1G", nodes = 1, 
-	email = NULL, dependency = NULL, enforce = FALSE, tmpdir) {
+	email = NULL, dependency = NULL, enforce = FALSE, tmpdir, submit_by = "qsub") {
 	
 	if(is.null(output)) {
 		enforce = TRUE
@@ -201,7 +213,9 @@ pipeline_step = function(..., output = NULL, name, walltime = "1:00:00", mem = "
 	}
 	cmd = unlist(list(...))
 	cmd = paste(cmd, collapse = "\n")
-	script = qq("#!/bin/sh
+	if(submit_by == "qsub") {
+		if(length(dependency) > 1) dependency = paste(dependency, collapse = ",")
+		script = qq("#!/bin/sh
 #PBS -j oe
 #PBS -o @{OUTPUT_DIR}/temp/
 @{ifelse(is.null(dependency), '', paste0('#PBS -W depend=afterok:', dependency))}
@@ -213,10 +227,42 @@ pipeline_step = function(..., output = NULL, name, walltime = "1:00:00", mem = "
 
 @{cmd}
 ")
+	} else if(submit_by == "bsub") {
+		if(grepl("M", mem)) {
+			mem = as.numeric(gsub("M|MB", "", mem, ignore.case = TRUE))
+		} else if(grepl("G", mem)) {
+			mem = as.numeric(gsub("G|GB", "", mem, ignore.case = TRUE))*1024
+		}
+
+		if(!is.null(dependency)) {
+			if(length(dependency) > 1) {
+				dependency = strsplit(dependency, ",")[[1]]	
+			}
+			dependency = paste("done(", dependency_items, ")", sep = "", collapse = " && ")
+		}
+				script = qq("#!/bin/sh
+#BSUB -oo @{OUTPUT_DIR}/temp/@{name}.out
+#BSUB -eo @{OUTPUT_DIR}/temp/@{name}.err
+#BSUB -J @{name}
+#BSUB -W @{walltime}
+#BSUB -R rusage[mem=@{mem}]
+#BSUB -n @{nodes}
+@{ifelse(is.null(dependency), '', paste0('#BSUB -w ', dependency))}
+@{ifelse(is.null(email), '', paste0('#BSUB -u', email))}
+
+@{cmd}
+")
+	}
+
 	temp_file = tempfile(tmpdir = tmpdir, fileext = ".sh")
 	writeLines(script, temp_file)
 
-	x = system(qq("qsub @{temp_file}"), intern = TRUE)
+	if(submit_by == "qsub") {
+		x = system(qq("qsub '@{temp_file}'"), intern = TRUE)
+	} else if(submit_by == "bsub") {
+		x = system(qq("bsub < '@{temp_file}'"), intern = TRUE)
+	}
+	qqcat("submit job: @{name}, id: @{x[1]}\n")
 	return(x[1])
 }
 

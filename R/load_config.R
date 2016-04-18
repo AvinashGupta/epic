@@ -72,6 +72,7 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 	cat("sourcing", config_file, "\n")
 	sys.source(config_file, envir = environment())
 
+	
 	if(is.null(CGI_SHORE_EXTEND)) CGI_SHORE_EXTEND = 2000
 	if(is.null(CR_CUTOFF)) CR_CUTOFF = 0.01
 
@@ -91,6 +92,25 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 	}
 
 	# test SAMPLE
+	if(is.null(SAMPLE$class)) {
+		SAMPLE$class = rep("sample", nrow(SAMPLE))
+		warning("There should be a 'class' column in 'SAMPLE'.")
+	}
+	
+	if(is.null(rownames(SAMPLE))) {
+		stop("'SAMPLE must have row names.")
+	}
+
+	if(is.null(COLOR$class)) {
+		class = unique(COLOR$class)
+		COLOR$class = structure(rand_color(length(class)), names = class)
+		warning("'COLOR$class' should be defined.")
+	}
+
+	cn = intersect(names(COLOR), colnames(SAMPLE))
+	COLOR = COLOR[cn]
+	SAMPLE = SAMPLE[, cn, drop = FALSE]
+
 	if(is.null(SAMPLE$class)) {
 		SAMPLE$class = rep("sample", nrow(SAMPLE))
 		warning("There should be a 'class' column in 'SAMPLE'.")
