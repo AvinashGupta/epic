@@ -18,7 +18,7 @@ systemdf(cmd, envir = parent.frame(), verbose = FALSE)
 }
 \details{
 This function (system + data frame) provides a convinient way to invoke
-system calls in R. Since most of system calls expect tables as input and output, 
+system calls in R. Since most of system calls expect tables as inputs and outputs, 
 \code{\link{systemdf}} does following things step by step:
 
 \itemize{

@@ -1,7 +1,7 @@
  
 
 # == title
-# run pipeline through qsub system
+# run pipeline in HPC through job scheduling system
 #
 # == param
 # -config_file path of configuration script, check `load_config` for all configurations.
@@ -12,7 +12,7 @@
 # -submit_by which job scheduling you are using
 #
 # == details
-# Automatically run 
+# A workflow will be submitted to HPC.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -238,7 +238,7 @@ pipeline_step = function(..., output = NULL, name, walltime = "1:00:00", mem = "
 			if(length(dependency) > 1) {
 				dependency = strsplit(dependency, ",")[[1]]	
 			}
-			dependency = paste("done(", dependency_items, ")", sep = "", collapse = " && ")
+			dependency = paste("done(", dependency, ")", sep = "", collapse = " && ")
 		}
 				script = qq("#!/bin/sh
 #BSUB -oo @{OUTPUT_DIR}/temp/@{name}.out

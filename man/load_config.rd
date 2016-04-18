@@ -21,36 +21,42 @@ To run functions in epic package smoothly, users can validate their data by \cod
 All necessary variables are initialized in a configuration file.
 The configuration file should provide following variables:
 
-SAMPLE: a data frame, row names must be sample id and there must be a
+\code{SAMPLE}: a data frame, row names must be sample id and there must be a
   'class' column which corresponds to classes of samples. There can also
   be other annotation columns.
 
-COLOR: a list of color settings corresponding to annotation column in 
+\code{COLOR}: a list of color settings corresponding to annotation column in 
   'SAMPLE'. The value of each list element must be either a named vector
   or a color mapping function. 'COLOR$class' must be defined or random color
   will be assigned. Names of other color settings should be same as
   corresponding columns in 'SAMPLE'.
 
-TXDB (optional): a \code{\link[GenomicFeatures]{TxDb}} object.
+\code{TXDB} (optional): a \code{\link[GenomicFeatures]{TxDb}} object.
 
-EXPR (optional): a matrix which contains expression values. Column names 
+\code{GTF_FILE} (optional): GTF file which is used to built \code{TXDB}. If it is not specified, the function tries to extract from \code{TXDB}.
+
+\code{EXPR} (optional): a matrix which contains expression values. Column names 
   should be sample id and row names should be gene ids. Note gene ids in the 
   expression matrix should be same type as genes in \code{\link[GenomicFeatures]{TxDb}}.
 
-CHROMOSOME: a vector of chromosome names.
+\code{CHROMOSOME}: a vector of chromosome names.
 
-GENOME: abbreviation of species.
+\code{GENOME}: abbreviation of species.
 
-OUTPUT_DIR: path of output directory. Several sub directories will be created.
+\code{OUTPUT_DIR}: path of output directory. Several sub directories will be created.
 
-GENOMIC_FEATURE_LIST: a list of genomic features as GRanges objects. There
+\code{GENOMIC_FEATURE_LIST}: a list of genomic features as GRanges objects. There
   must be a element named 'cgi'.
 
-MARKS (optional): a vector of ChIP-Seq markers.
+\code{MARKS} (optional): a vector of ChIP-Seq markers.
 
-methylation_hooks() must be defined.
+\code{methylation_hooks()} must be defined.
 
-chipseq_hooks() is optional unless you want to do integrative analysis.
+\code{chipseq_hooks()} is optional unless you want to do integrative analysis.
+
+\code{CGI_SHORE_EXTEND}: extension of cgi, by default it is 2kb both upstream and downstream.
+
+\code{CR_CUTOFF}: cutoff for correlation significance of cr.
 }
 \value{
 No value is returned.

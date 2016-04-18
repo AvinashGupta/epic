@@ -14,14 +14,14 @@ plot_multiple_samples_methylation_on_genome(sample_id, annotation,
 
   \item{sample_id}{a vector of sample ids}
   \item{annotation}{annotation of samples (e.g. subtypes)}
-  \item{chromosome}{chromosomes}
+  \item{chromosome}{a vector of chromosome names}
   \item{species}{species}
   \item{nw}{number of windows}
   \item{...}{pass to \code{\link[gtrellis]{gtrellis_layout}}}
 
 }
 \details{
-The whole genome is segented by \code{nw} windows.
+The whole genome is segented by \code{nw} windows. Methylation in different classes are visualized as separated tracks.
 }
 \value{
 No value is returned

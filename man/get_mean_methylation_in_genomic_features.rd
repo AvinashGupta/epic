@@ -16,8 +16,8 @@ get_mean_methylation_in_genomic_features(sample_id, gf_list, average = TRUE, p =
   \item{sample_id}{a vector of sample IDs}
   \item{gf_list}{a list of genomic features in \code{\link[GenomicRanges]{GRanges}} class}
   \item{average}{whether to calcualte average methylation in a interval? if not, the function will randomly sample CpG sites from the input regions.}
-  \item{p}{if average is FALSE, the probability to pick CpG sites}
-  \item{chromosome}{a vector of chromosomes}
+  \item{p}{if average is \code{FALSE}, the probability to randomly pick CpG sites}
+  \item{chromosome}{a vector of chromosome names}
   \item{filter_fun}{filtering function on CpG sites in each intersection (e.g. exclude regions which contains too few CpGs). The object sent to this function is a vector of positions for CpGs that locate in the current region.}
 
 }

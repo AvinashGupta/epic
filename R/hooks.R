@@ -19,7 +19,7 @@
 # 
 # There are following hooks:
 #
-# -set set a chromosome. The function accepts a single chromosome name and 
+# -get_data how to get the object which contains methylation data. The function accepts a single chromosome name and 
 #      returns an object which is used as the first argument in other hook functions
 # -meth how to extract methylation rate. The function should have three arguments:
 #       the object returned from ``set()``, index of rows and index of columns. Normally,
@@ -29,6 +29,11 @@
 # -site the function should return a vector of positions of CpG sites
 # -coverage how to extract CpG coverage, same setting as ``meth``.
 # -GRanges howt to extract CpG sites as a `GenomicRanges::GRanges` object.
+#
+# Following two hooks can be used if above hooks are set:
+#
+# -set select chromosome as the current chromosome
+# -sample_id a vector of sample ids which contains methylation data
 #
 # Note: positions of CpG sites in a chromosome should be sorted.
 #

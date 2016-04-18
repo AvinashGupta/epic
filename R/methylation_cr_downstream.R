@@ -152,9 +152,9 @@ cr_overlap_to_genomic_features = function(cr, gf_list, species = NULL, chromosom
 #
 # == param
 # -cr filtered correlated regions from `filter_correlated_regions`
-# -template template path of cr objects.
-# -txdb a `GenomicFeatures::TxDb` objext
-# -chromosome a vector of chromosomes
+# -template template path of cr objects, chromosome name should be marked by ``@{chr}``
+# -txdb a `GenomicFeatures::TxDb` object
+# -chromosome a vector of chromosome names
 # -merge_chr whether put chromsomes in one single plot
 #
 # == details

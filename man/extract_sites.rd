@@ -13,7 +13,7 @@ extract_sites(start, end, site, return_index = FALSE, min_sites = 0)
 
   \item{start}{start positions, a numeric vector}
   \item{end}{end positions, a numeric vector.}
-  \item{site}{positions of all sites, should be sorted.}
+  \item{site}{positions of all sites, should be sorted increasingly.}
   \item{return_index}{whether return the index in the position vector or just the position itself?}
   \item{min_sites}{minimal number of sites in an interval, regions which contain sites less than this value will be filtered out.}
 
@@ -28,7 +28,7 @@ locate in a specific group of regions (e.g. extract CpG sites in DMRs). Normally
 	end = 654321
 	subsite = site[site >= start & site <= end]  }
 
-Unfortunately, in above code, the whole vector \code{site} will be scaned four times
+Unfortunately, in above code, the whole vector \code{site} will be scanned four times
 (\code{>=}, \code{<=}, \code{&} and \code{[}).
 If you want to look for sites in more than one regions (e.g. 1000 regions), in every
 loop, the whole \code{site} vector will be re-scanned again and again which is very time-consuming.
@@ -50,7 +50,7 @@ by setting \code{start} and \code{end} as vectors.
 You can choose to return index only or positions.
 
   \preformatted{
-  ubsite = extract_sites(start, end, site, return_index = FALSE)
+  subsite = extract_sites(start, end, site, return_index = FALSE)
   head(subsite)
   subsite_index = extract_sites(start, end, site, return_index = TRUE)
   head(subsite_index)

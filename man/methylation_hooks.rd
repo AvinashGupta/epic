@@ -28,12 +28,19 @@ All downstream functions which analyze methylation data needs this hook to be al
 There are following hooks:
 
 \describe{
-  \item{set}{set a chromosome. The function accepts a single chromosome name and  returns an object which is used as the first argument in other hook functions}
+  \item{get_data}{how to get the object which contains methylation data. The function accepts a single chromosome name and  returns an object which is used as the first argument in other hook functions}
   \item{meth}{how to extract methylation rate. The function should have three arguments: the object returned from \code{set()}, index of rows and index of columns. Normally, the first argument (\code{obj}) can be ignored when calling this hook. Note the methylation matrix should have column names. The methylation rate should between 0 and 1.}
   \item{raw}{how to extract raw methylation value, same setting as \code{meth}. This hook is optional.}
   \item{site}{the function should return a vector of positions of CpG sites}
   \item{coverage}{how to extract CpG coverage, same setting as \code{meth}.}
   \item{GRanges}{howt to extract CpG sites as a \code{\link[GenomicRanges]{GRanges}} object.}
+}
+
+Following two hooks can be used if above hooks are set:
+
+\describe{
+  \item{set}{select chromosome as the current chromosome}
+  \item{sample_id}{a vector of sample ids which contains methylation data}
 }
 
 Note: positions of CpG sites in a chromosome should be sorted.

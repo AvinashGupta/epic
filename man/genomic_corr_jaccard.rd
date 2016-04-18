@@ -24,7 +24,7 @@ You can set the background when calculating Jaccard coefficient. For example,
 if the interest is the Jaccard coefficient between CpG sites in \code{query} and in \code{reference}
 \code{background} can be set with a \code{\link[GenomicRanges]{GRanges}} object which contains positions of CpG sites.
 
-Be careful with the \code{strand} in your \code{\link[GenomicRanges]{GRanges}} object!!
+Be careful with the \code{strand} in your \code{\link[GenomicRanges]{GRanges}} object!
 }
 \value{
 A single correlation value.

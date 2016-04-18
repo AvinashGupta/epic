@@ -13,16 +13,13 @@ genomic_corr_sintersect(query, reference, background = NULL)
 
   \item{query}{genomic region 1, a \code{\link[GenomicRanges]{GRanges}} object}
   \item{reference}{genomic region 2, a \code{\link[GenomicRanges]{GRanges}} object}
-  \item{background}{subset of sites that should be only looked into, a \code{\link[GenomicRanges]{GRanges}} object}
+  \item{background}{subset of regions that should be only looked into, a \code{\link[GenomicRanges]{GRanges}} object}
 
 }
 \details{
 It calculates the total length of overlapped regions in \code{query}.
 
-If the interest is e.g. the number of CpG sites both in \code{query} and in \code{reference}
-\code{background} can be set with a \code{\link[GenomicRanges]{GRanges}} object which contains positions of CpG sites.
-
-Be careful with the \code{strand} in your GRanges object!!
+Be careful with the \code{strand} in your GRanges object!
 }
 \value{
 A single correlation value.

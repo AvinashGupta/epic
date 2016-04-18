@@ -12,8 +12,8 @@ common_regions(gr_list, min_width = 0, min_coverage = floor(length(gr_list)/4), 
 \arguments{
 
   \item{gr_list}{a list of \code{\link[GenomicRanges]{GRanges}}}
-  \item{min_width}{minimum width of the common regions}
-  \item{min_coverage}{minimum cross-sample coverage for the common regions}
+  \item{min_width}{minimal width of the common regions}
+  \item{min_coverage}{minimal cross-sample coverage for the common regions}
   \item{gap}{gap to merge common regions, pass to \code{\link{reduce2}}}
 
 }

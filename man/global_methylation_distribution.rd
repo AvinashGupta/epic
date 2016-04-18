@@ -15,8 +15,8 @@ global_methylation_distribution(sample_id, annotation,
 \arguments{
 
   \item{sample_id}{a vector of sample ids}
-  \item{annotation}{subtype information}
-  \item{annotation_color}{color for subtypes}
+  \item{annotation}{classification information}
+  \item{annotation_color}{color for classifications}
   \item{reorder_column}{whether reorder the samples}
   \item{ha}{additional annotation can be specified as a \code{\link[ComplexHeatmap]{HeatmapAnnotation}} object}
   \item{chromosome}{chromosomes}

@@ -29,7 +29,7 @@ binary_search = function(breaks, search, left_index = TRUE) {
 # == param
 # -start      start positions, a numeric vector
 # -end        end positions, a numeric vector.
-# -site       positions of all sites, should be sorted.
+# -site       positions of all sites, should be sorted increasingly.
 # -return_index   whether return the index in the position vector or just the position itself?
 # -min_sites  minimal number of sites in an interval, regions which contain sites less than this value will be filtered out.
 #
@@ -42,7 +42,7 @@ binary_search = function(breaks, search, left_index = TRUE) {
 # 	end = 654321
 # 	subsite = site[site >= start & site <= end]
 #
-# Unfortunately, in above code, the whole vector ``site`` will be scaned four times
+# Unfortunately, in above code, the whole vector ``site`` will be scanned four times
 # (``>=``, ``<=``, ``&`` and ``[``).
 # If you want to look for sites in more than one regions (e.g. 1000 regions), in every
 # loop, the whole ``site`` vector will be re-scanned again and again which is very time-consuming.
@@ -61,7 +61,7 @@ binary_search = function(breaks, search, left_index = TRUE) {
 #
 # You can choose to return index only or positions.
 #
-#   ubsite = extract_sites(start, end, site, return_index = FALSE)
+#   subsite = extract_sites(start, end, site, return_index = FALSE)
 #   head(subsite)
 #   subsite_index = extract_sites(start, end, site, return_index = TRUE)
 #   head(subsite_index)
