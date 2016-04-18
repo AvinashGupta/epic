@@ -118,3 +118,5 @@ chipseq_hooks$chromHMM = function(sid) {
 
 })
 
+CR_CUTOFF = 0.01
+CGI_SHORE_EXTEND = 2000

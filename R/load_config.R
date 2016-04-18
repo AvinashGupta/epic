@@ -66,9 +66,14 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 	GENOMIC_FEATURE_LIST = NULL
 	MARKS = NULL
 	GTF_FILE = NULL
+	CGI_SHORE_EXTEND = 2000
+	CR_CUTOFF = 0.01
 
 	cat("sourcing", config_file, "\n")
 	sys.source(config_file, envir = environment())
+
+	if(is.null(CGI_SHORE_EXTEND)) CGI_SHORE_EXTEND = 2000
+	if(is.null(CR_CUTOFF)) CR_CUTOFF = 0.01
 
 	if(!validate) {
 		assign("SAMPLE", SAMPLE, envir = export_env)
@@ -81,6 +86,8 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 		assign("GENOMIC_FEATURE_LIST", GENOMIC_FEATURE_LIST, envir = export_env)
 		assign("MARKS", MARKS, envir = export_env)
 		assign("GTF_FILE", GTF_FILE, envir = export_env)
+		assign("CGI_SHORE_EXTEND", CGI_SHORE_EXTEND, envir = export_env)
+		assign("CR_CUTOFF", CR_CUTOFF, envir = export_env)
 	}
 
 	# test SAMPLE
@@ -185,8 +192,8 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 	}
 	if(is.null(GENOMIC_FEATURE_LIST$cgi_shore)) {
 		extended_cgi = GENOMIC_FEATURE_LIST$cgi
-		start(extended_cgi) = start(extended_cgi) - 2000
-		end(extended_cgi) = end(extended_cgi) + 2000
+		start(extended_cgi) = start(extended_cgi) - CGI_SHORE_EXTEND
+		end(extended_cgi) = end(extended_cgi) + CGI_SHORE_EXTEND
 		shore = setdiff(extended_cgi, GENOMIC_FEATURE_LIST$cgi)
 		GENOMIC_FEATURE_LIST$cgi_shore = shore
 	}
@@ -325,6 +332,8 @@ load_config = function(config_file, export_env = parent.frame(), validate = TRUE
 	assign("GENOMIC_FEATURE_LIST", GENOMIC_FEATURE_LIST, envir = export_env)
 	assign("MARKS", MARKS, envir = export_env)
 	assign("GTF_FILE", GTF_FILE, envir = export_env)
+	assign("CGI_SHORE_EXTEND", CGI_SHORE_EXTEND, envir = export_env)
+	assign("CR_CUTOFF", CR_CUTOFF, envir = export_env)
 
 	gc(verbose = FALSE)
 

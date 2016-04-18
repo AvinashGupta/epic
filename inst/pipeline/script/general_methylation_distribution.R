@@ -1,8 +1,6 @@
 
 suppressPackageStartupMessages(library(GetoptLong))
-shore_extend = 2000
-GetoptLong("config=s", "configuration R script",
-	       "shore_extend=i", "base pairs that extend from CGI")
+GetoptLong("config=s", "configuration R script")
 
 library(epic)
 load_config(config)
@@ -31,10 +29,7 @@ dev.off()
 
 cat("general methylation distribution in cgi shores\n")
 pdf(qq("@{OUTPUT_DIR}/general_methylation_distribution_cgi_shores.pdf"), width = 0.16*n_sample + 2, height = 10)
-extended_cgi = GENOMIC_FEATURE_LIST$cgi
-start(extended_cgi) = start(extended_cgi) - shore_extend
-end(extended_cgi) = end(extended_cgi) + shore_extend
-shore = setdiff(extended_cgi, GENOMIC_FEATURE_LIST$cgi)
+shore = GENOMIC_FEATURE_LIST$cgi_shore
 global_methylation_distribution(sample_id = sample_id, annotation = SAMPLE$class, 
 	annotation_color = COLOR$class, chromosome = CHROMOSOME, background = shore, p = 0.01, ha = ha)
 global_methylation_distribution(sample_id = sample_id, annotation = SAMPLE$class, 
@@ -46,7 +41,7 @@ pdf(qq("@{OUTPUT_DIR}/general_methylation_distribution_neither_cgi_nor_shores.pd
 chromInfo = getChromInfoFromUCSC(GENOME)
 chromInfo = chromInfo[chromInfo$chrom %in% chromosome, ]
 chromGr = GRanges(chromInfo$chrom, ranges = IRanges(rep(1, nrow(chromInfo)), chromInfo$length))
-complement = setdiff(chromGr, extended_cgi)
+complement = setdiff(chromGr, union(GENOMIC_FEATURE_LIST$cgi, GENOMIC_FEATURE_LIST$cgi_shore))
 global_methylation_distribution(sample_id = sample_id, annotation = SAMPLE$class, 
 	annotation_color = COLOR$class, chromosome = CHROMOSOME, background = complement, ha = ha)
 global_methylation_distribution(sample_id = sample_id, annotation = SAMPLE$class, 

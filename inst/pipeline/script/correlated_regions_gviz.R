@@ -1,7 +1,7 @@
 
 suppressPackageStartupMessages(library(GetoptLong))
 
-cutoff = 0.01
+cutoff = NULL
 peak = NULL
 GetoptLong("config=s", "configuration R script",
 	       "cutoff=f", "cutoff for filter cr",
@@ -11,14 +11,11 @@ GetoptLong("config=s", "configuration R script",
 library(epic)
 load_config(config)
 
-
-files = dir(qq("@{OUTPUT_DIR}/rds"), pattern = "^cr_filtered_fdr_.*\\.rds$")
-if(length(files) == 1) {
-	cutoff = gsub("^cr_filtered_fdr_(.*)\\.rds$", "\\1", files[1])
-	cr_filtered = readRDS(files[1])
-} else {
-	cr_filtered = readRDS(qq("@{OUTPUT_DIR}/rds/cr_filtered_fdr_@{cutoff}.rds"))
+if(is.null(cutoff)) {
+	cutoff = CR_CUTOFF
 }
+
+cr_filtered = readRDS(qq("@{OUTPUT_DIR}/rds/cr_filtered_fdr_@{cutoff}.rds"))
 
 if(!chr %in% unique(as.character(seqnames(cr_filtered)))) {
 	stop("'chr' does not exist in 'cr_filtered'.")
@@ -26,7 +23,13 @@ if(!chr %in% unique(as.character(seqnames(cr_filtered)))) {
 
 if(is.null(peak)) {
 	peak_list = NULL
+	if(!is.null(MARKS)) {
+		cat("You can add peak tracks to Gviz plots by manually specifying '--peak' options.\n")
+	}
 } else {
+	if(!peak %in% MARKS) {
+		stop("'peak' should be in 'MARKS'.")
+	}
 	peak_list = get_peak_list(peak)
 }
 

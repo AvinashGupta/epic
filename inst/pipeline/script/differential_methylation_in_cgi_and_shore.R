@@ -1,8 +1,6 @@
 
 suppressPackageStartupMessages(library(GetoptLong))
-shore_extend = 2000
-GetoptLong("config=s", "configuration R script",
-	       "shore_extend=i", "base pairs that extend from CGI")
+GetoptLong("config=s", "configuration R script")
 
 library(epic)
 load_config(config)
@@ -21,16 +19,13 @@ cgi_1kb_window = makeWindows(GENOMIC_FEATURE_LIST$cgi, w = 1000, short.keep = TR
 cgi_1kb_window = cgi_1kb_window[width(cgi_1kb_window) > 500]
 gr_cgi = get_mean_methylation_in_genomic_features(sample_id, chromosome = CHROMOSOME, gf_list = list(cgi_1kb_window = cgi_1kb_window))[[1]]
 
-extended_cgi = GENOMIC_FEATURE_LIST$cgi
-start(extended_cgi) = start(extended_cgi) - shore_extend
-end(extended_cgi) = end(extended_cgi) + shore_extend
-shore = setdiff(extended_cgi, GENOMIC_FEATURE_LIST$cgi)
+shore = GENOMIC_FEATURE_LIST$cgi_shore
 shore_1kb_window = makeWindows(shore, w = 1000, short.keep = TRUE)
 shore_1kb_window = shore_1kb_window[width(shore_1kb_window) > 500]
 gr_shore = get_mean_methylation_in_genomic_features(sample_id, chromosome = CHROMOSOME, gf_list = list(shore_1kb_window = shore_1kb_window))[[1]]
 
 cat("split genome by 1kb window and calculate mean methylation in it.\n")
-complement_1kb_window = makeWindows(setdiff(chromGr, extended_cgi), w = 1000)
+complement_1kb_window = makeWindows(setdiff(chromGr, union(GENOMIC_FEATURE_LIST$cgi, GENOMIC_FEATURE_LIST$cgi_shore)), w = 1000)
 complement_1kb_window = complement_1kb_window[width(complement_1kb_window) > 500]
 gr_complement = get_mean_methylation_in_genomic_features(sample_id, chromosome = CHROMOSOME, gf_list = list(complement_1kb_window = complement_1kb_window))[[1]]
 

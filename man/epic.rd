@@ -13,7 +13,7 @@ epic()
 There are some R scripts which can be run directly. The path of all scripts can be obtained by
 
   \preformatted{
-   dir(system.file("pipeline", package = "epic"), pattern = "\\.R$")  }
+   dir(system.file("pipeline", "script", package = "epic"), pattern = "\\.R$")  }
 
 You can either directly run these R scripts by:
 

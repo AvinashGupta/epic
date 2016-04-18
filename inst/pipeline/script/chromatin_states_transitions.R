@@ -4,7 +4,6 @@ min1 = 0.5
 min2 = 0.5
 window = NULL
 GetoptLong("config=s", "configuration R script",
-	       "chr=s", "chromosomes",
 	       "window=i", "window size",
 	       "min1=f", ">= floor(min1*n1)",
 	       "min2=f", ">= floor(min2*n2)")
