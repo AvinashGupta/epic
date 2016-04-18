@@ -2,8 +2,7 @@
 suppressPackageStartupMessages(library(GetoptLong))
 cutoff = 0.01
 GetoptLong("config=s", "configuration R script",
-		   "cutoff=f", "cutoff for filter cr",
-	       "chr=s", "chromosomes")
+		   "cutoff=f", "cutoff for filter cr")
 
 library(epic)
 load_config(config)

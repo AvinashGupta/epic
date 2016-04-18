@@ -19,5 +19,5 @@ if(length(unique(attr(cr_filtered, "factor"))) > 1) {
 	cr_filtered = add_subtype_specificity(cr_filtered)
 }
 
-saveRDS(cr_filtered, file = qq("@{RDS_FOLDER}/cr_filtered_fdr_@{cutoff}.rds"))
+saveRDS(cr_filtered, file = qq("@{OUTPUT_FOLDER}/rds/cr_filtered_fdr_@{cutoff}.rds"))
 
