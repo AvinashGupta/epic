@@ -77,12 +77,12 @@ methylation_hooks = setGlobalOptions(
 
 methylation_hooks$set = function(chr) {
 
-    if(!is.null(methylation_hooks$obj)) {
-        if(attr(methylation_hooks$obj, "chr") == chr) {
-            qqcat("[@{chr}] @{chr} is already set.\n")
-            return(invisible(NULL))
-        }
-    }
+	if(!is.null(attr(methylation_hooks$obj, "chr"))) {
+		if(attr(methylation_hooks$obj, "chr") == chr) {
+	        qqcat("[@{chr}] @{chr} is already set.\n")
+	        return(invisible(NULL))
+	    }
+	}
     
     obj = methylation_hooks$get_data(chr)
     attr(obj, "chr") = chr

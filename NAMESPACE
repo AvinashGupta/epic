@@ -1,10 +1,10 @@
-export(pipeline_by_qsub)
 export(extract_field_from_gencode)
 export(genomic_corr_pintersect)
 export(mb)
 export(reduce2)
 export(genomic_regions_correlation)
 export(set_counter)
+export(run_pipeline)
 export(print.bp)
 export(genomic_corr_reldist)
 export(genomic_corr_sintersect)
@@ -57,6 +57,7 @@ export(binary_search)
 export(genomic_corr_nintersect)
 
 
+
 import(ComplexHeatmap)
 import(ConsensusClusterPlus)
 import(GenomicFeatures)
@@ -85,4 +86,5 @@ importFrom(stats, cor.test, oneway.test, t.test, p.adjust, integrate, ecdf, dens
 importFrom(utils, read.table, write.table, txtProgressBar, setTxtProgressBar)
 useDynLib(epic, .fixes = "epic_", .registration=TRUE)
 importFrom(AnnotationDbi, loadDb)
+
 

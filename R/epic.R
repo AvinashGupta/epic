@@ -42,7 +42,7 @@
 #
 epic = function() {
 
-	all_cmds = dir(system.file("pipeline", package = "epic"), pattern = "\\.R$")
+	all_cmds = dir(system.file("pipeline", "script", package = "epic"), pattern = "\\.R$")
 	all_cmds = gsub("\\.R$", "", all_cmds)
 	
 	msg = 'Usage: Rscript -e "epic::epic()" cmd [options]\n\nAvailable cmd:\n\n'

@@ -263,9 +263,10 @@ cor_columns = function (x, abs_cutoff = 0.5, size = 1000, mc = 1, ...) {
 	        G2 <- SPLIT[[COMB[2]]]
 	        
 	        RES <- cor(x[, G1], x[, G2], ...)
+	        RES[is.na(RES)] = 0
 	        for(k in seq_along(abs_cutoff)) {
 	        	tmp_mat = RES
-		        tmp_mat[abs(tmp_mat) > abs_cutoff[k]] = 1
+	        	tmp_mat[abs(tmp_mat) > abs_cutoff[k]] = 1
 		        tmp_mat[abs(tmp_mat) < abs_cutoff[k]] = 0
 
 		        count[G1, k] = count[G1, k] + rowSums(tmp_mat)

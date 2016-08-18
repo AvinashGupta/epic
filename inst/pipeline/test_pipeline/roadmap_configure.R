@@ -65,9 +65,124 @@ methylation_hooks$coverage = function(obj = methylation_hooks$obj,
 methylation_hooks$set("chr21")
 sample_id = colnames(methylation_hooks$meth(row_index = 1:2))
 sample_id = sample_id[!sample_id %in% c("E013", "E054", "E070", "E084", "E085")]
-SAMPLE = data.frame(id = sample_id, class = rep("roadmap", length(sample_id)), stringsAsFactors = FALSE)
+
+df = read.table(textConnection(
+"eid    group   color
+E017    IMR90   #E41A1C
+E002    ESC #924965
+E008    ESC #924965
+E001    ESC #924965
+E015    ESC #924965
+E014    ESC #924965
+E016    ESC #924965
+E003    ESC #924965
+E024    ESC #924965
+E020    iPSC    #69608A
+E019    iPSC    #69608A
+E018    iPSC    #69608A
+E021    iPSC    #69608A
+E022    iPSC    #69608A
+E007    ES-deriv    #4178AE
+E009    ES-deriv    #4178AE
+E010    ES-deriv    #4178AE
+E013    ES-deriv    #4178AE
+E012    ES-deriv    #4178AE
+E011    ES-deriv    #4178AE
+E004    ES-deriv    #4178AE
+E005    ES-deriv    #4178AE
+E006    ES-deriv    #4178AE
+E062    Blood_&_T-cell  #55A354
+E034    Blood_&_T-cell  #55A354
+E045    Blood_&_T-cell  #55A354
+E033    Blood_&_T-cell  #55A354
+E044    Blood_&_T-cell  #55A354
+E043    Blood_&_T-cell  #55A354
+E039    Blood_&_T-cell  #55A354
+E041    Blood_&_T-cell  #55A354
+E042    Blood_&_T-cell  #55A354
+E040    Blood_&_T-cell  #55A354
+E037    Blood_&_T-cell  #55A354
+E048    Blood_&_T-cell  #55A354
+E038    Blood_&_T-cell  #55A354
+E047    Blood_&_T-cell  #55A354
+E029    HSC_&_B-cell    #678C69
+E031    HSC_&_B-cell    #678C69
+E035    HSC_&_B-cell    #678C69
+E051    HSC_&_B-cell    #678C69
+E050    HSC_&_B-cell    #678C69
+E036    HSC_&_B-cell    #678C69
+E032    HSC_&_B-cell    #678C69
+E046    HSC_&_B-cell    #678C69
+E030    HSC_&_B-cell    #678C69
+E026    Mesench #B65C73
+E049    Mesench #B65C73
+E025    Mesench #B65C73
+E023    Mesench #B65C73
+E052    Myosat  #E67326
+E055    Epithelial  #FF9D0C
+E056    Epithelial  #FF9D0C
+E059    Epithelial  #FF9D0C
+E061    Epithelial  #FF9D0C
+E057    Epithelial  #FF9D0C
+E058    Epithelial  #FF9D0C
+E028    Epithelial  #FF9D0C
+E027    Epithelial  #FF9D0C
+E054    Neurosph    #FFD924
+E053    Neurosph    #FFD924
+E112    Thymus  #DAB92E
+E093    Thymus  #DAB92E
+E071    Brain   #C5912B
+E074    Brain   #C5912B
+E068    Brain   #C5912B
+E069    Brain   #C5912B
+E072    Brain   #C5912B
+E067    Brain   #C5912B
+E073    Brain   #C5912B
+E070    Brain   #C5912B
+E082    Brain   #C5912B
+E081    Brain   #C5912B
+E063    Adipose #AF5B39
+E100    Muscle  #C2655D
+E108    Muscle  #C2655D
+E107    Muscle  #C2655D
+E089    Muscle  #C2655D
+E090    Muscle  #C2655D
+E083    Heart   #D56F80
+E104    Heart   #D56F80
+E095    Heart   #D56F80
+E105    Heart   #D56F80
+E065    Heart   #D56F80
+E078    Sm._Muscle  #F182BC
+E076    Sm._Muscle  #F182BC
+E103    Sm._Muscle  #F182BC
+E111    Sm._Muscle  #F182BC
+E092    Digestive   #C58DAA
+E085    Digestive   #C58DAA
+E084    Digestive   #C58DAA
+E109    Digestive   #C58DAA
+E106    Digestive   #C58DAA
+E075    Digestive   #C58DAA
+E101    Digestive   #C58DAA
+E102    Digestive   #C58DAA
+E110    Digestive   #C58DAA
+E077    Digestive   #C58DAA
+E079    Digestive   #C58DAA
+E094    Digestive   #C58DAA
+E099    Other   #999999
+E086    Other   #999999
+E088    Other   #999999
+E097    Other   #999999
+E087    Other   #999999
+E080    Other   #999999
+E091    Other   #999999
+E066    Other   #999999
+E098    Other   #999999
+E096    Other   #999999
+E113    Other   #999999
+"), header = TRUE, row.names = 1, stringsAsFactors = FALSE, comment.char = "")
+SAMPLE = data.frame(id = sample_id, class = df[sample_id, "group"], stringsAsFactors = FALSE)
 rownames(SAMPLE) = sample_id
-COLOR = list(class = c("roadmap" = "red"))
+COLOR = list(class = structure(unique(df[, "color"]), names = unique(df[, "group"])))
 
 
 cat("Loading gencode...\n")
@@ -120,10 +235,12 @@ con = pipe("ls /icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks/*.na
 MARKS = scan(con, what = "character"); close(con)
 MARKS = gsub("^.*E\\d+-(.*?)\\.narrowPeak\\.gz$", "\\1", MARKS)
 MARKS = sort(unique(MARKS))
+MARKS = c("DNase.macs2", "H3K4me1", "H3K4me3", "H3K27ac", "H3K27me3", "H3K36me3", "H3K9me3")
 
 chipseq_hooks$sample_id = function(mark) {
     sample_id = dir("/icgc/dkfzlsdf/analysis/B080/guz/epic_test/data/narrow_peaks", pattern = qq("E\\d+-@{mark}.narrowPeak.gz"))
     sample_id = gsub(qq("-@{mark}.narrowPeak.gz"), "", sample_id)
+	intersect(sample_id, rownames(SAMPLE))
 }
 
 chipseq_hooks$peak = function(mark, sid) {

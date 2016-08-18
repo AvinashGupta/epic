@@ -50,7 +50,7 @@ heatmap_diff_methylation_in_genomic_features = function(gr, annotation,
 	if(min_mean_range > 0) {
 
 		x = tapply(seq_len(ncol(mat)), annotation, function(ind) {
-				rowMeans(mat[, ind, drop = FALSE])
+				rowMeans(mat[, ind, drop = FALSE], na.rm = TRUE)
 			})
 		dim(x) = NULL
 		x = as.matrix(data.frame(x))
@@ -203,17 +203,16 @@ get_mean_methylation_in_genomic_features = function(sample_id, gf_list, average 
 		meth_mat = methylation_hooks$meth(col_index = sample_id)
 		meth_gr = methylation_hooks$GRanges()
 		meth_site = methylation_hooks$site()
-
+		
 		for(i in seq_along(gf_list)) {
 			qqcat("overlapping to @{names(gf_list)[i]} on @{chr}\n")
 			mtch = as.matrix(findOverlaps(gf_list[[i]], meth_gr))  ## <- test memory usage
-
 			if(average){
 				l = tapply(mtch[,2], mtch[,1], function(i) {
 						x = meth_site[i]
 						filter_fun(x)
 					})
-				mean_meth = tapply(mtch[,2], mtch[,1], function(i) colMeans(meth_mat[i, , drop = FALSE]))
+				mean_meth = tapply(mtch[,2], mtch[,1], function(i) colMeans(meth_mat[i, , drop = FALSE], na.rm = TRUE))
 				mean_meth = mean_meth[l]
 
 				ncpg = tapply(mtch[,2], mtch[,1], length)
@@ -223,6 +222,8 @@ get_mean_methylation_in_genomic_features = function(sample_id, gf_list, average 
 				ind = as.integer(names(mean_meth))
 				gr = gf_list[[i]][ind]
 				mcols(gr) = cbind(as.data.frame(mean_meth_mat), ncpg = ncpg[names(mean_meth)])
+				l = apply(mean_meth_mat, 1, function(x) sum(is.na(x))/length(x)) < 0.1
+				gr = gr[l]
 			} else {
 				l = unique(mtch[, 2])
 				gr = meth_gr[l]

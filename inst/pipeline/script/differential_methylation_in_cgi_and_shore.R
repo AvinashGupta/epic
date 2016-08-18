@@ -11,7 +11,7 @@ n_sample = length(sample_id)
 
 
 chromInfo = getChromInfoFromUCSC(GENOME)
-chromInfo = chromInfo[chromInfo$chrom %in% chromosome, ]
+chromInfo = chromInfo[chromInfo$chrom %in% CHROMOSOME, ]
 chromGr = GRanges(chromInfo$chrom, ranges = IRanges(rep(1, nrow(chromInfo)), chromInfo$length))
 
 cat("split cgi by 1kb window and calculate mean methylation in it.\n")
@@ -30,9 +30,9 @@ complement_1kb_window = complement_1kb_window[width(complement_1kb_window) > 500
 gr_complement = get_mean_methylation_in_genomic_features(sample_id, chromosome = CHROMOSOME, gf_list = list(complement_1kb_window = complement_1kb_window))[[1]]
 
 
-saveRDS(gr_cgi, file = qq("@{OUTPUT_DIR/rds/mean_meth_1kb_cgi.rds}"))
-saveRDS(gr_shore, file = qq("@{OUTPUT_DIR/rds/mean_meth_1kb_cgi_shore.rds}"))
-saveRDS(gr_complement, file = qq("@{OUTPUT_DIR/rds/mean_meth_1kb_neither_cgi_nor_shore.rds}"))
+saveRDS(gr_cgi, file = qq("@{OUTPUT_DIR}/rds/mean_meth_1kb_cgi.rds"))
+saveRDS(gr_shore, file = qq("@{OUTPUT_DIR}/rds/mean_meth_1kb_cgi_shore.rds"))
+saveRDS(gr_complement, file = qq("@{OUTPUT_DIR}/rds/mean_meth_1kb_neither_cgi_nor_shore.rds"))
 
 
 cat("making heatmaps for differential methylation.\n")
@@ -40,7 +40,7 @@ pdf(qq("@{OUTPUT_DIR}/heatmap_diff_methylation_1kb_window.pdf"), width = 14, hei
 gr_diff_genome = heatmap_diff_methylation_in_genomic_features(gr_complement, annotation = SAMPLE$class, 
     annotation_color = COLOR$class, title = "genome 1kb window (exclude cgi and shore)", ha = ha)
 gr_diff_cgi = heatmap_diff_methylation_in_genomic_features(gr_cgi, annotation = SAMPLE$class, 
-    annotation_color = COLOR$class, title = "cgi 1kb window", ha = ha)
+    annotation_color = COLOR$class, title = "cgi 1kb window", ha = ha, cutoff = 1, min_mean_range=0)
 gr_diff_shore = heatmap_diff_methylation_in_genomic_features(gr_shore, annotation = SAMPLE$class, 
     annotation_color = COLOR$class, title = "shore 1kb window", ha = ha)
 dev.off()

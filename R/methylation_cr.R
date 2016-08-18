@@ -296,7 +296,7 @@ correlated_regions = function(sample_id, expr, txdb, chr, extend = 50000,
 
 readRDS_or_readRData = function(file) {
 	if(grepl("\\.rds$", file, ignore.case = TRUE)) {
-		cr = readRDS_or_readRData(file)
+		cr = readRDS(file)
 	} else if(grepl("\\.rdata", file, ignore.case = TRUE)) {
 		var_name = load(file)
 		eval(parse(text = paste0("cr = ", var_name)))

@@ -50,6 +50,7 @@ methylation_subtype_classfication = function(gr, n_class, pct_cutoff = 1, corr_c
 		} else {
 			l = rep(TRUE, nrow(mat2))
 		}
+		qqcat("@{sum(l)} rows remains\n")
 		pdf(NULL)
 		res = ConsensusClusterPlus(mat2[l, ], maxK = 2, 
 			clusterAlg = "km", distance = "euclidean", reps = 1000, verbose = TRUE)
