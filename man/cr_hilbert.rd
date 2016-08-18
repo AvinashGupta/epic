@@ -12,9 +12,9 @@ cr_hilbert(cr, template, txdb, chromosome = paste0("chr", 1:22), merge_chr = TRU
 \arguments{
 
   \item{cr}{filtered correlated regions from \code{\link{filter_correlated_regions}}}
-  \item{template}{template path of cr objects.}
-  \item{txdb}{a \code{\link[GenomicFeatures]{TxDb}} objext}
-  \item{chromosome}{a vector of chromosomes}
+  \item{template}{template path of cr objects, chromosome name should be marked by \code{@{chr}}}
+  \item{txdb}{a \code{\link[GenomicFeatures]{TxDb}} object}
+  \item{chromosome}{a vector of chromosome names}
   \item{merge_chr}{whether put chromsomes in one single plot}
 
 }

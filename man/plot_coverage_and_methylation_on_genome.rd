@@ -13,7 +13,7 @@ plot_coverage_and_methylation_on_genome(sid, chromosome = paste0("chr", 1:22),
 \arguments{
 
   \item{sid}{a single sample id}
-  \item{chromosome}{chromosomes}
+  \item{chromosome}{a vector of chromosome names}
   \item{species}{species}
   \item{nw}{number of windows}
   \item{...}{pass to \code{\link[gtrellis]{gtrellis_layout}}}

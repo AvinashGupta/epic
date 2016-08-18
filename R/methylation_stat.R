@@ -9,7 +9,7 @@
 #
 # == param
 # -sample_id a vector of sample ids
-# -chromosome a vector of chromosomes
+# -chromosome a vector of chromosome names
 #
 # == detail
 # For each sample id, it will produce five plots:
@@ -23,7 +23,7 @@
 # == value
 # A list of corresponding statistics
 #
-# = author
+# == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
 wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22), background = NULL) {
@@ -182,7 +182,7 @@ wgbs_qcplot = function(sample_id, chromosome = paste0("chr", 1:22), background =
 #
 # == param
 # -sid a single sample id
-# -chromosome chromosomes
+# -chromosome a vector of chromosome names
 # -species species
 # -nw number of windows
 # -... pass to `gtrellis::gtrellis_layout`
@@ -249,13 +249,13 @@ plot_coverage_and_methylation_on_genome = function(sid, chromosome = paste0("chr
 # == param
 # -sample_id a vector of sample ids
 # -annotation annotation of samples (e.g. subtypes)
-# -chromosome chromosomes
+# -chromosome a vector of chromosome names
 # -species species
 # -nw number of windows
 # -... pass to `gtrellis::gtrellis_layout`
 #
 # == details
-# The whole genome is segented by ``nw`` windows.
+# The whole genome is segented by ``nw`` windows. Methylation in different classes are visualized as separated tracks.
 #
 # == value
 # No value is returned
@@ -369,8 +369,8 @@ plot_multiple_samples_methylation_on_genome = function(sample_id, annotation,
 # 
 # == param
 # -sample_id a vector of sample ids
-# -annotation subtype information
-# -annotation_color color for subtypes
+# -annotation classification information
+# -annotation_color color for classifications
 # -reorder_column whether reorder the samples
 # -ha additional annotation can be specified as a `ComplexHeatmap::HeatmapAnnotation` object
 # -chromosome chromosomes

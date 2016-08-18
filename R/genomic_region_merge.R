@@ -47,13 +47,13 @@ logical_segment = function(l) {
 }
 
 # == title
-# Mark that the numbers represent number of base pairs
+# Mark the numbers to be number of base pairs
 #
 # == param
 # -x a numeric vector. It will be convert to integers by `base::as.integer`.
 #
 # == details
-# It just adds a new ``bp`` class to the vector.
+# It adds a new ``bp`` class to the vector.
 #
 # == value
 # A same vector as input
@@ -149,7 +149,7 @@ print.bp = function(x, ...) {
 # the number of DMRs by merging neighouring DMRs. DMRs distribute differently in different places in the genome, e.g. DMRs are dense
 # and short in CpG-rich regions (e.g. CpG islands) while long in CpG-sparse regions (e.g. gene bodies and intergenic regions),
 # thus the merging should be applied based to the width of every DMR itself. `reduce2` can merge regions by the width of every region itself.
-# This type of merging is dynamic that after each iteration of merging, width and number of regions change which results in changing of extension
+# This type of merging is dynamic because after each iteration of merging, width and number of regions change which results in changing of extension
 # of some regions. The whole merging will proceed iteratively unless there is no new merging or the gap between regions reaches ``max_gap``.
 #
 # If there are numeric meta columns, corresponding values will be summed up for the merged regions. There will

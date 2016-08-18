@@ -9,7 +9,7 @@
 #
 # == details
 # This function (system + data frame) provides a convinient way to invoke
-# system calls in R. Since most of system calls expect tables as input and output, 
+# system calls in R. Since most of system calls expect tables as inputs and outputs, 
 # `systemdf` does following things step by step:
 #
 # - use backtick to mark variables which are data frames or other variables which can be converted

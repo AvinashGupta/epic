@@ -8,25 +8,25 @@
 # Correlation between two sets of genomic regions
 #
 # == param
-# -gr_list_1 a list of `GenomicRanges::GRanges` objects, should be a named list.
-# -gr_list_2 a list of `GenomicRanges::GRanges` objects, should be a named list.
-# -background a `GenomicRanges::GRanges` object, the genomic background to be restricted in
-# -chromosome chromosomes
+# -gr_list_1 a list of `GenomicRanges::GRanges` objects, should be a named list, e.g. low methylated regions in different samples.
+# -gr_list_2 a list of `GenomicRanges::GRanges` objects, should be a named list, e.g. a list of different genomic features.
+# -background a `GenomicRanges::GRanges` object. The correlation is only looked in background regions.
+# -chromosome a vector of chromosome names
 # -species species, used for random shuffling genomic regions
-# -nperm number of permutations. If it is set to 0, no permutation will be performed.
+# -nperm number of random shufflings. If it is set to 0, no random shuffling will be performed.
 # -mc.cores number of cores for parallel calculation
 # -stat_fun method to calculate correlations. There are some pre-defined functions:
-#           `genomic_corr_reldist`, `genomic_corr_absdist`, `genomic_corr_jaccard`,
-#           `genomic_corr_nintersect`, `genomic_corr_pintersect`, `genomic_corr_sintersect`.
+#           `genomic_corr_reldist`, `genomic_corr_absdist` measure how two sets of genomic regions are close; `genomic_corr_jaccard`,
+#           `genomic_corr_nintersect`, `genomic_corr_pintersect`, `genomic_corr_sintersect` measures how two sets of genomic regions are overlapped.
 #           The self-defined function should accept at least two arguments which are two GRanges object.
 #           The third argument is ``...`` which is passed from the main function. The function
 #           should only return a numeric value.
 # -... pass to ``stat_fun``
-# -bedtools_binary file for bedtools
-# -tmpdir tempoary dir
+# -bedtools_binary random shuffling is perfomed by ``bedtools``. If ``bedtools`` is not in ``PATH``, the path of ``bedtools`` can be set here.
+# -tmpdir dir for temporary files
 #
 # == details
-# The correlation between two sets of genomic regions basicly means how much the first type of genomic regions
+# The correlation between two sets of genomic regions basically means how much the first type of genomic regions
 # are overlapped or close to the second type of genomic regions.
 #
 # The significance of the correlation is calculated by random shuffling the regions. 
@@ -37,7 +37,7 @@
 # and should support ``-i -g -incl`` options.
 #
 # == value
-# A list containing:
+# A list containing following elements:
 #
 # -stat statistic value
 # -fold_change stat/E(stat), stat divided by expected value which is generated from random shuffling
@@ -48,7 +48,8 @@
 # If ``perm`` is set to 0 or 1, ``fold_change``, ``p.value``, ``stat_random_mean`` and ``stat_random_sd`` are all ``NULL``.
 #
 # == seealso
-# `genomic_corr_reldist`, `genomic_corr_jaccard`, `genomic_corr_absdist`, `genomic_corr_nintersect`, `genomic_corr_pintersect`, `genomic_corr_sintersect`
+# `genomic_corr_reldist`, `genomic_corr_jaccard`, `genomic_corr_absdist`, `genomic_corr_nintersect`, 
+# `genomic_corr_pintersect`, `genomic_corr_sintersect`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -244,7 +245,7 @@ genomic_regions_correlation = function(gr_list_1, gr_list_2, background = NULL,
 # which are the middle points of regions. For each middle point in ``query``, it looks 
 # for two nearest points in ``reference`` on its left and right. The statistic is defined as the ratio of the distance
 # to the nearest neighbour point to the distance of two neighbour points. If ``query`` and ``reference`` are not correlated at all,
-# It is expected that the ratio follows a uniform distribution. So final statisitics are the KS-statistics
+# It is expected that the ratio follows a uniform distribution. So final statisitic are the KS-statistic
 # between the real distribution of rations to the uniform distribution.
 #
 # == reference
@@ -318,7 +319,7 @@ genomic_corr_reldist = function(query, reference) {
 # if the interest is the Jaccard coefficient between CpG sites in ``query`` and in ``reference``
 # ``background`` can be set with a `GenomicRanges::GRanges` object which contains positions of CpG sites.
 #
-# Be careful with the ``strand`` in your `GenomicRanges::GRanges` object!!
+# Be careful with the ``strand`` in your `GenomicRanges::GRanges` object!
 #
 # == value
 # A single correlation value.
@@ -415,7 +416,7 @@ genomic_corr_absdist = function(query, reference, method = mean, ...) {
 # because one region in ``query`` may overlap with more than one
 # regions in ``reference``
 #
-# Be careful with the ``strand`` in your GRanges object!!
+# Be careful with the ``strand`` in your GRanges object!
 #
 # == value
 # A single correlation value.
@@ -447,9 +448,9 @@ genomic_corr_nintersect = function(query, reference, ...) {
 # == details
 # For each region in ``query``, it calculates the percent that is covered by ``reference``.
 #
-# The returned value is percent which is how much ``query`` is covered by ``reference`` (by default). 
+# The returned value is percent which is how much ``query`` is covered by ``reference``. 
 #
-# Be careful with the ``strand`` in your GRanges object!!
+# Be careful with the ``strand`` in your GRanges object!
 #
 # == value
 # A single correlation value.
@@ -479,15 +480,12 @@ genomic_corr_pintersect = function(query, reference, ...) {
 # == param
 # -query genomic region 1, a `GenomicRanges::GRanges` object
 # -reference genomic region 2, a `GenomicRanges::GRanges` object
-# -background subset of sites that should be only looked into, a `GenomicRanges::GRanges` object
+# -background subset of regions that should be only looked into, a `GenomicRanges::GRanges` object
 #
 # == details
 # It calculates the total length of overlapped regions in ``query``.
 #
-# If the interest is e.g. the number of CpG sites both in ``query`` and in ``reference``
-# ``background`` can be set with a `GenomicRanges::GRanges` object which contains positions of CpG sites.
-#
-# Be careful with the ``strand`` in your GRanges object!!
+# Be careful with the ``strand`` in your GRanges object!
 #
 # == value
 # A single correlation value.

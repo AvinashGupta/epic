@@ -12,7 +12,7 @@ wgbs_qcplot(sample_id, chromosome = paste0("chr", 1:22))
 \arguments{
 
   \item{sample_id}{a vector of sample ids}
-  \item{chromosome}{a vector of chromosomes}
+  \item{chromosome}{a vector of chromosome names}
 
 }
 \details{
@@ -28,8 +28,8 @@ For each sample id, it will produce five plots:
 }
 \value{
 A list of corresponding statistics
-
-= author
+}
+\author{
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{

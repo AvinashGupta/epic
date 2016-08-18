@@ -19,9 +19,9 @@ genomic_corr_pintersect(query, reference, ...)
 \details{
 For each region in \code{query}, it calculates the percent that is covered by \code{reference}.
 
-The returned value is percent which is how much \code{query} is covered by \code{reference} (by default).
+The returned value is percent which is how much \code{query} is covered by \code{reference}.
 
-Be careful with the \code{strand} in your GRanges object!!
+Be careful with the \code{strand} in your GRanges object!
 }
 \value{
 A single correlation value.

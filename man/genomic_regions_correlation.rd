@@ -14,21 +14,21 @@ genomic_regions_correlation(gr_list_1, gr_list_2, background = NULL,
 }
 \arguments{
 
-  \item{gr_list_1}{a list of \code{\link[GenomicRanges]{GRanges}} objects, should be a named list.}
-  \item{gr_list_2}{a list of \code{\link[GenomicRanges]{GRanges}} objects, should be a named list.}
-  \item{background}{a \code{\link[GenomicRanges]{GRanges}} object, the genomic background to be restricted in}
-  \item{chromosome}{chromosomes}
+  \item{gr_list_1}{a list of \code{\link[GenomicRanges]{GRanges}} objects, should be a named list, e.g. low methylated regions in different samples.}
+  \item{gr_list_2}{a list of \code{\link[GenomicRanges]{GRanges}} objects, should be a named list, e.g. a list of different genomic features.}
+  \item{background}{a \code{\link[GenomicRanges]{GRanges}} object. The correlation is only looked in background regions.}
+  \item{chromosome}{a vector of chromosome names}
   \item{species}{species, used for random shuffling genomic regions}
-  \item{nperm}{number of permutations. If it is set to 0, no permutation will be performed.}
+  \item{nperm}{number of random shufflings. If it is set to 0, no random shuffling will be performed.}
   \item{mc.cores}{number of cores for parallel calculation}
-  \item{stat_fun}{method to calculate correlations. There are some pre-defined functions: \code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}. The self-defined function should accept at least two arguments which are two GRanges object. The third argument is \code{...} which is passed from the main function. The function should only return a numeric value.}
+  \item{stat_fun}{method to calculate correlations. There are some pre-defined functions: \code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_absdist}} measure how two sets of genomic regions are close; \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}} measures how two sets of genomic regions are overlapped. The self-defined function should accept at least two arguments which are two GRanges object. The third argument is \code{...} which is passed from the main function. The function should only return a numeric value.}
   \item{...}{pass to \code{stat_fun}}
-  \item{bedtools_binary}{file for bedtools}
-  \item{tmpdir}{tempoary dir}
+  \item{bedtools_binary}{random shuffling is perfomed by \code{bedtools}. If \code{bedtools} is not in \code{PATH}, the path of \code{bedtools} can be set here.}
+  \item{tmpdir}{dir for temporary files}
 
 }
 \details{
-The correlation between two sets of genomic regions basicly means how much the first type of genomic regions
+The correlation between two sets of genomic regions basically means how much the first type of genomic regions
 are overlapped or close to the second type of genomic regions.
 
 The significance of the correlation is calculated by random shuffling the regions. 
@@ -39,7 +39,7 @@ Pleast note random shuffling is done by bedtools, so bedtools should be installe
 and should support \code{-i -g -incl} options.
 }
 \value{
-A list containing:
+A list containing following elements:
 
 \describe{
   \item{stat}{statistic value}
@@ -52,7 +52,8 @@ A list containing:
 If \code{perm} is set to 0 or 1, \code{fold_change}, \code{p.value}, \code{stat_random_mean} and \code{stat_random_sd} are all \code{NULL}.
 }
 \seealso{
-\code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_nintersect}}, \code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}
+\code{\link{genomic_corr_reldist}}, \code{\link{genomic_corr_jaccard}}, \code{\link{genomic_corr_absdist}}, \code{\link{genomic_corr_nintersect}}, 
+\code{\link{genomic_corr_pintersect}}, \code{\link{genomic_corr_sintersect}}
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

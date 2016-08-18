@@ -1,10 +1,10 @@
 \name{bp}
 \alias{bp}
 \title{
-Mark that the numbers represent number of base pairs
+Mark the numbers to be number of base pairs
 }
 \description{
-Mark that the numbers represent number of base pairs
+Mark the numbers to be number of base pairs
 }
 \usage{
 bp(x)
@@ -15,7 +15,7 @@ bp(x)
 
 }
 \details{
-It just adds a new \code{bp} class to the vector.
+It adds a new \code{bp} class to the vector.
 }
 \value{
 A same vector as input

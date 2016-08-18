@@ -4,7 +4,7 @@
 run pipeline through qsub system
 }
 \description{
-run pipeline through qsub system
+run pipeline in HPC through job scheduling system
 }
 \usage{
 run_pipeline(config_file, prefix = "", email = NULL, enforce = FALSE, Rscript_binary = "Rscript", submit_by = "qsub")
@@ -20,7 +20,7 @@ run_pipeline(config_file, prefix = "", email = NULL, enforce = FALSE, Rscript_bi
 
 }
 \details{
-Automatically run
+A workflow will be submitted to HPC.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

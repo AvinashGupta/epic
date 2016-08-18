@@ -23,7 +23,7 @@ Please note this value is not equal to the number of intersections betweenn two 
 because one region in \code{query} may overlap with more than one
 regions in \code{reference}
 
-Be careful with the \code{strand} in your GRanges object!!
+Be careful with the \code{strand} in your GRanges object!
 }
 \value{
 A single correlation value.

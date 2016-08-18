@@ -20,7 +20,7 @@ For regions in \code{query} and \code{reference}, they are all degenerated as si
 which are the middle points of regions. For each middle point in \code{query}, it looks 
 for two nearest points in \code{reference} on its left and right. The statistic is defined as the ratio of the distance
 to the nearest neighbour point to the distance of two neighbour points. If \code{query} and \code{reference} are not correlated at all,
-It is expected that the ratio follows a uniform distribution. So final statisitics are the KS-statistics
+It is expected that the ratio follows a uniform distribution. So final statisitic are the KS-statistic
 between the real distribution of rations to the uniform distribution.
 }
 \references{
